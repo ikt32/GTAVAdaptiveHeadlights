@@ -1,0 +1,193 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="thirdparty">
+      <UniqueIdentifier>{c56fe06f-a7f5-4525-b344-fa52758a5c33}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Memory">
+      <UniqueIdentifier>{ec5233c7-b82a-470f-8df2-e78bce9d5929}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="thirdparty\ScriptHookV">
+      <UniqueIdentifier>{38f76561-fc93-4dbd-915c-e5b430be774c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Util">
+      <UniqueIdentifier>{9b508854-bf76-441a-8e38-0bb71b1370a8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="thirdparty\Menu">
+      <UniqueIdentifier>{3d1002af-79db-40b1-a64b-6cf65d44aa32}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\thirdparty\GTAVMenuBase\menu.cpp">
+      <Filter>thirdparty\Menu</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\GTAVMenuBase\menucontrols.cpp">
+      <Filter>thirdparty\Menu</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\GTAVMenuBase\menukeyboard.cpp">
+      <Filter>thirdparty\Menu</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\GTAVMenuBase\menumemutils.cpp">
+      <Filter>thirdparty\Menu</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\GTAVMenuBase\menusettings.cpp">
+      <Filter>thirdparty\Menu</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\GTAVMenuBase\menuutils.cpp">
+      <Filter>thirdparty\Menu</Filter>
+    </ClCompile>
+    <ClCompile Include="Memory\NativeMemory.cpp">
+      <Filter>Memory</Filter>
+    </ClCompile>
+    <ClCompile Include="Memory\VehicleExtensions.cpp">
+      <Filter>Memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\fmt\src\format.cc">
+      <Filter>thirdparty</Filter>
+    </ClCompile>
+    <ClCompile Include="DllMain.cpp" />
+    <ClCompile Include="Script.cpp" />
+    <ClCompile Include="HeadlightsMenu.cpp" />
+    <ClCompile Include="ScriptSettings.cpp" />
+    <ClCompile Include="ScriptMenuUtils.cpp" />
+    <ClCompile Include="Util\FileVersion.cpp">
+      <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="Util\Logger.cpp">
+      <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="Util\Paths.cpp">
+      <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="Util\ScriptUtils.cpp">
+      <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="Util\String.cpp">
+      <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="Util\Timer.cpp">
+      <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="Util\UI.cpp">
+      <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="Util\AddonSpawnerCache.cpp">
+      <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="Util\Color.cpp">
+      <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="Util\Files.cpp">
+      <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="Config.cpp" />
+    <ClCompile Include="HeadlightsScript.cpp" />
+    <ClCompile Include="HeadlightsScriptNPC.cpp" />
+    <ClCompile Include="SettingsCommon.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\thirdparty\GTAVMenuBase\InstructionalButton.h">
+      <Filter>thirdparty\Menu</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\GTAVMenuBase\menu.h">
+      <Filter>thirdparty\Menu</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\GTAVMenuBase\menucontrols.h">
+      <Filter>thirdparty\Menu</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\GTAVMenuBase\menukeyboard.h">
+      <Filter>thirdparty\Menu</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\GTAVMenuBase\menumemutils.hpp">
+      <Filter>thirdparty\Menu</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\GTAVMenuBase\menusettings.h">
+      <Filter>thirdparty\Menu</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\GTAVMenuBase\menuutils.h">
+      <Filter>thirdparty\Menu</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\GTAVMenuBase\Scaleform.h">
+      <Filter>thirdparty\Menu</Filter>
+    </ClInclude>
+    <ClInclude Include="Memory\VehicleExtensions.hpp">
+      <Filter>Memory</Filter>
+    </ClInclude>
+    <ClInclude Include="Memory\VehicleFlags.h">
+      <Filter>Memory</Filter>
+    </ClInclude>
+    <ClInclude Include="Memory\NativeMemory.hpp">
+      <Filter>Memory</Filter>
+    </ClInclude>
+    <ClInclude Include="Memory\Offsets.hpp">
+      <Filter>Memory</Filter>
+    </ClInclude>
+    <ClInclude Include="Memory\Versions.h">
+      <Filter>Memory</Filter>
+    </ClInclude>
+    <ClInclude Include="Constants.hpp" />
+    <ClInclude Include="Script.hpp" />
+    <ClInclude Include="ScriptMenu.hpp" />
+    <ClInclude Include="ScriptSettings.hpp" />
+    <ClInclude Include="Config.hpp" />
+    <ClInclude Include="..\thirdparty\ScriptHookV_SDK\inc\nativeCaller.h">
+      <Filter>thirdparty\ScriptHookV</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\ScriptHookV_SDK\inc\natives.h">
+      <Filter>thirdparty\ScriptHookV</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\ScriptHookV_SDK\inc\types.h">
+      <Filter>thirdparty\ScriptHookV</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\ScriptHookV_SDK\inc\enums.h">
+      <Filter>thirdparty\ScriptHookV</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\ScriptHookV_SDK\inc\main.h">
+      <Filter>thirdparty\ScriptHookV</Filter>
+    </ClInclude>
+    <ClInclude Include="HeadlightsScript.hpp" />
+    <ClInclude Include="ScriptMenuUtils.hpp" />
+    <ClInclude Include="Util\Files.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\FileVersion.hpp">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\Game.hpp">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\Logger.hpp">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\Math.hpp">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\Paths.hpp">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\ScriptUtils.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\String.hpp">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\Timer.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\UI.hpp">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\AddonSpawnerCache.hpp">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\Color.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="HeadlightsScriptNPC.hpp" />
+    <ClInclude Include="SettingsCommon.hpp" />
+  </ItemGroup>
+</Project>
