@@ -110,8 +110,12 @@ void CHeadlightsScript::ApplyConfig(const CConfig& config) {
 void CHeadlightsScript::update() {
     if (!ENTITY::DOES_ENTITY_EXIST(mVehicle) ||
         !VEHICLE::GET_IS_VEHICLE_ENGINE_RUNNING(mVehicle) ||
-        !mActiveConfig)
+        !mActiveConfig) {
+        mStartupCalibrationDone = false;
+        mStartupCalibrationActive = false;
+        mLastHeadlightOn = false;
         return;
+    }
 
     for (auto& [boneIdx, rotations] : mBoneIdxRotationMap) {
         (void)boneIdx; // No [[maybe_unused]] for structured bindings...
@@ -123,11 +127,32 @@ void CHeadlightsScript::update() {
     }
 
     if (mActiveConfig->Level.Enable) {
-        getLevelRotation(mBoneIdxRotationMap);
+        auto [lowBeams, highBeams] = getBeamsActive(mVehicle);
+
+        if (!mStartupCalibrationDone &&
+            !mLastHeadlightOn &&
+            (lowBeams || highBeams)) {
+            mStartupCalibrationStarted = MISC::GET_GAME_TIMER();
+            mStartupCalibrationActive = true;
+        }
+        mLastHeadlightOn = lowBeams || highBeams;
+    }
+    else {
+        mStartupCalibrationDone = false;
+        mStartupCalibrationActive = false;
+        mLastHeadlightOn = false;
     }
 
-    if (mActiveConfig->Steer.Enable) {
+    if (mActiveConfig->Steer.Enable && mStartupCalibrationDone) {
         getSteerRotation(mBoneIdxRotationMap);
+    }
+
+    if (!mStartupCalibrationDone && mStartupCalibrationActive) {
+        getStartupCalibration(mBoneIdxRotationMap);
+    }
+
+    if (mActiveConfig->Level.Enable && mStartupCalibrationDone) {
+        getLevelRotation(mBoneIdxRotationMap);
     }
 
     for (const auto& [boneIdx, rotations] : mBoneIdxRotationMap) {
@@ -265,6 +290,80 @@ void CHeadlightsScript::getSteerRotation(BoneIdxRotationMap& rotationMap) const 
         if (yaw < 0.0f) {
             updateAngle(mLowLeftBones, { axis, yaw * 0.5f }, rotationMap, modifiedBoneIdxs);
             updateAngle(mLowRightBones, { axis, yaw }, rotationMap, modifiedBoneIdxs);
+        }
+    }
+}
+
+void CHeadlightsScript::getStartupCalibration(BoneIdxRotationMap& rotationMap) {
+    const Vector3 axisPitch = { 1.0f, 0.0f, 0.0f };
+    const Vector3 axisYaw = { 0.0f, 0.0f, 1.0f };
+    const float upperLimitRad = deg2rad(mActiveConfig->Level.UpperLimit);
+    const float lowerLimitRad = deg2rad(mActiveConfig->Level.LowerLimit);
+    const float yawLimitRad = deg2rad(mActiveConfig->Steer.Limit);
+
+    const float stage1Ratio = 0.25f; // Off
+    const float stage2Ratio = 0.40f; // To lower position
+    const float stage3Ratio = 0.80f; // Test yaw
+    const float stage4Ratio = 1.00f; // To Normal position
+
+    // From stage2 to stage3, we're lowered and can test yaw
+    const float stage1RatioYaw = 0.50f; // Move to out
+    const float stage2RatioYaw = 0.60f; // Move back to 0
+    const float stage3RatioYaw = 0.70f; // Wait
+
+    float calibrationPitch = 0.0f;
+    float calibrationYaw = 0.0f;
+
+    float progress = map(static_cast<float>(MISC::GET_GAME_TIMER()),
+        static_cast<float>(mStartupCalibrationStarted),
+        static_cast<float>(mStartupCalibrationStarted + mStartupDurationMs),
+        0.0f,
+        1.0f);
+
+    if (progress < stage1Ratio) {
+        calibrationPitch = 0.0f;
+    }
+    else if (progress < stage2Ratio) {
+        calibrationPitch = map(progress, stage1Ratio, stage2Ratio, 0.0f, lowerLimitRad);
+    }
+    else if (progress < stage3Ratio) {
+        calibrationPitch = lowerLimitRad;
+    }
+    else if (progress < stage4Ratio) {
+        calibrationPitch = map(progress, stage3Ratio, stage4Ratio, lowerLimitRad, calibrationPitch);
+    }
+
+    if (progress < stage1RatioYaw) {
+        calibrationYaw = 0.0f;
+    }
+    else if (progress < stage2RatioYaw) {
+        calibrationYaw = map(progress, stage1RatioYaw, stage2RatioYaw, 0.0f, yawLimitRad);
+    }
+    else if (progress < stage3RatioYaw) {
+        calibrationYaw = map(progress, stage2RatioYaw, stage3RatioYaw, yawLimitRad, 0.0f);
+    }
+
+    if (mStartupCalibrationActive && progress > 1.0f) {
+        mStartupCalibrationActive = false;
+        mStartupCalibrationDone = true;
+        mLowpassBodyPitch = ENTITY::GET_ENTITY_PITCH(mVehicle);
+        mLowpassSuspPitch = 0.0f;
+    }
+    else {
+        std::vector<int> modifiedBoneIdxs;
+        // Update for all lights simultaneously
+        updateAngle(mHighLeftBones, { axisPitch, calibrationPitch }, rotationMap, modifiedBoneIdxs);
+        updateAngle(mHighRightBones, { axisPitch, calibrationPitch }, rotationMap, modifiedBoneIdxs);
+        updateAngle(mLowLeftBones, { axisPitch, calibrationPitch }, rotationMap, modifiedBoneIdxs);
+        updateAngle(mLowRightBones, { axisPitch, calibrationPitch }, rotationMap, modifiedBoneIdxs);
+
+        // ... and yaw, too.
+        if (mActiveConfig->Steer.Enable) {
+            modifiedBoneIdxs.clear();
+            updateAngle(mHighLeftBones, { axisYaw, calibrationYaw }, rotationMap, modifiedBoneIdxs);
+            updateAngle(mLowLeftBones, { axisYaw, calibrationYaw }, rotationMap, modifiedBoneIdxs);
+            updateAngle(mHighRightBones, { axisYaw, -calibrationYaw }, rotationMap, modifiedBoneIdxs);
+            updateAngle(mLowRightBones, { axisYaw, -calibrationYaw }, rotationMap, modifiedBoneIdxs);
         }
     }
 }

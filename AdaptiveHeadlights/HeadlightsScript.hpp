@@ -45,6 +45,8 @@ protected:
     void getCorrectionRotation(BoneIdxRotationMap& rotationMap) const;
     void getLevelRotation(BoneIdxRotationMap& rotationMap);
     void getSteerRotation(BoneIdxRotationMap& rotationMap) const;
+    void getStartupCalibration(BoneIdxRotationMap& rotationMap);
+
     std::pair<bool, bool> getBeamsActive(Vehicle vehicle) const;
     uint32_t getDamageFlag(const std::string& boneName) const;
 
@@ -63,6 +65,13 @@ protected:
 
     float mLowpassBodyPitch = 0.0f; // degrees
     float mLowpassSuspPitch = 0.0f; // degrees
+
+    const int mStartupDurationMs = 5000;
+
+    bool mStartupCalibrationDone = false;
+    bool mStartupCalibrationActive = false;
+    bool mLastHeadlightOn = false;
+    int mStartupCalibrationStarted = 0;
 
     bool mIsNPC;
 };
