@@ -9,6 +9,11 @@ public:
         std::vector<CConfig>& configs
     );
 
+    ~CHeadlightsScriptNPC();
+
     void Tick() override;
+
+private:
+    bool mPlayerModeActive;
 };
 

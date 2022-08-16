@@ -87,7 +87,10 @@
     <ClCompile Include="..\thirdparty\GTAVMenuBase\menuutils.cpp" />
     <ClCompile Include="Config.cpp" />
     <ClCompile Include="DllMain.cpp" />
+    <ClCompile Include="Memory\NativeMatrix.cpp" />
     <ClCompile Include="Memory\NativeMemory.cpp" />
+    <ClCompile Include="Memory\NativeVectors.cpp" />
+    <ClCompile Include="Memory\VehicleBone.cpp" />
     <ClCompile Include="Memory\VehicleExtensions.cpp" />
     <ClCompile Include="Script.cpp" />
     <ClCompile Include="ScriptMenuUtils.cpp" />
@@ -98,7 +101,6 @@
     <ClCompile Include="HeadlightsScriptNPC.cpp" />
     <ClCompile Include="Util\AddonSpawnerCache.cpp" />
     <ClCompile Include="Util\Color.cpp" />
-    <ClCompile Include="Util\Files.cpp" />
     <ClCompile Include="Util\FileVersion.cpp" />
     <ClCompile Include="Util\Logger.cpp" />
     <ClCompile Include="Util\Paths.cpp" />
@@ -123,8 +125,12 @@
     <ClInclude Include="..\thirdparty\ScriptHookV_SDK\inc\types.h" />
     <ClInclude Include="Config.hpp" />
     <ClInclude Include="Constants.hpp" />
+    <ClInclude Include="Memory\NativeMatrix.hpp" />
     <ClInclude Include="Memory\NativeMemory.hpp" />
+    <ClInclude Include="Memory\NativeVectors.hpp" />
     <ClInclude Include="Memory\Offsets.hpp" />
+    <ClInclude Include="Memory\VehicleBone.hpp" />
+    <ClInclude Include="Memory\VehicleEnums.hpp" />
     <ClInclude Include="Memory\VehicleExtensions.hpp" />
     <ClInclude Include="Memory\VehicleFlags.h" />
     <ClInclude Include="Memory\Versions.h" />
@@ -137,7 +143,6 @@
     <ClInclude Include="HeadlightsScriptNPC.hpp" />
     <ClInclude Include="Util\AddonSpawnerCache.hpp" />
     <ClInclude Include="Util\Color.h" />
-    <ClInclude Include="Util\Files.h" />
     <ClInclude Include="Util\FileVersion.hpp" />
     <ClInclude Include="Util\Game.hpp" />
     <ClInclude Include="Util\Logger.hpp" />

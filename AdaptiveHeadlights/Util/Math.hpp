@@ -15,9 +15,9 @@ struct V3D {
     V3D() = default;
     Vector3 to_v3f() {
         Vector3 v{
-            static_cast<float>(x), 0,
-            static_cast<float>(y), 0,
-            static_cast<float>(z), 0
+            static_cast<float>(x),
+            static_cast<float>(y),
+            static_cast<float>(z),
         };
         return v;
     }

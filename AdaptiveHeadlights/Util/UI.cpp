@@ -1,11 +1,12 @@
 #include "UI.hpp"
-
+#include "Math.hpp"
 #include <inc/enums.h>
 #include <inc/natives.h>
+#include <algorithm>
 #include <vector>
-#include "Math.hpp"
 
 namespace {
+    const size_t MaxStringLength = 99;
     int notificationId;
 
     float GetStringWidth(const std::string& text, float scale, int font) {
@@ -37,6 +38,17 @@ void UI::Notify(const std::string& message, bool removePrevious) {
         notifHandleAddr = &notificationId;
     }
     Notify(message, notifHandleAddr);
+}
+
+void UI::ShowHelpText(const std::string& message) {
+    HUD::BEGIN_TEXT_COMMAND_DISPLAY_HELP("CELL_EMAIL_BCON");
+
+    for (size_t i = 0; i < message.size(); i += MaxStringLength) {
+        size_t npos = std::min(MaxStringLength, static_cast<int>(message.size()) - i);
+        HUD::ADD_TEXT_COMPONENT_SUBSTRING_PLAYER_NAME(message.substr(i, npos).c_str());
+    }
+
+    HUD::END_TEXT_COMMAND_DISPLAY_HELP(0, false, false, -1);
 }
 
 void UI::ShowText(float x, float y, float scale, const std::string& text) {

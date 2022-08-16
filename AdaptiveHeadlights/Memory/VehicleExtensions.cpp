@@ -3,6 +3,9 @@
 #include "NativeMemory.hpp"
 #include "Versions.h"
 #include "Offsets.hpp"
+
+#include "VehicleFlags.h"
+
 #include "../Util/Logger.hpp"
 
 #include <inc/main.h>
@@ -26,6 +29,8 @@ namespace {
     int hoverTransformRatioOffset = 0;
     int hoverTransformRatioLerpOffset = 0;
     int fuelLevelOffset = 0;
+    int lightsBrokenOffset = 0;
+    int lightsBrokenVisuallyOffset = 0;
     int nextGearOffset = 0;
     int currentGearOffset = 0;
     int topGearOffset = 0;
@@ -55,7 +60,9 @@ namespace {
     int vehicleModelInfoOffset = 0x020;
     int vehicleFlagsOffset = 0;
 
-    int steeringMultOffset = 0;
+    int wheelSteerMultOffset = 0;
+
+    int gravityOffset = 0;
 
     // Wheel stuff
     int wheelHealthOffset = 0;
@@ -97,7 +104,13 @@ uint8_t VehicleExtensions::GearsAvailable() {
 void VehicleExtensions::Init() {
     mem::init();
 
-    uintptr_t addr = mem::FindPattern("3A 91 ? ? ? ? 74 ? 84 D2");
+    // Figuring out indicator timing: LieutenantDan
+    uintptr_t addr = mem::FindPattern("\x44\x0F\xB7\x91\xDC\x00\x00\x00\x0F\xB7\x81\xB0\x0A\x00\x00\x41\xB9\x01\x00\x00\x00\x44\x03\x15\x8C\x63\xDF\x01",
+        "xxxx????xxx????xxxxxxxxx????");
+    indicatorTimingOffset = addr == 0 ? 0 : *(int*)(addr + 4);
+    LOG(indicatorTimingOffset == 0 ? WARN : DEBUG, "Indicator timing offset: 0x{:03X}", indicatorTimingOffset);
+
+    addr = mem::FindPattern("3A 91 ? ? ? ? 74 ? 84 D2");
     rocketBoostActiveOffset = addr == 0 ? 0 : *(int*)(addr + 2);
     LOG(rocketBoostActiveOffset == 0 ? WARN : DEBUG, "Rocket Boost Active Offset: 0x{:X}", rocketBoostActiveOffset);
 
@@ -116,9 +129,22 @@ void VehicleExtensions::Init() {
     hoverTransformRatioLerpOffset = addr == 0 ? 0 : *(int*)(addr + 4) + 0x28;
     LOG(hoverTransformRatioLerpOffset == 0 ? WARN : DEBUG, "Hover Transform Ratio Offset: 0x{:X}", hoverTransformRatioLerpOffset);
 
+    addr = mem::FindPattern("\x48\x85\xC0\x74\x3C\x8B\x80\x00\x00\x00\x00\xC1\xE8\x0F", "xxxxxxx????xxx");
+    vehicleFlagsOffset = addr == 0 ? 0 : *(int*)(addr + 7);
+    LOG(vehicleFlagsOffset == 0 ? WARN : DEBUG, "Vehicle Flags Offset: 0x{:X}", vehicleFlagsOffset);
+
     addr = mem::FindPattern("\x74\x26\x0F\x57\xC9", "xxxxx");
     fuelLevelOffset = addr == 0 ? 0 : *(int*)(addr + 8);
     LOG(fuelLevelOffset == 0 ? WARN : DEBUG, "Fuel Level Offset: 0x{:X}", fuelLevelOffset);
+
+    // 86C -> bulb
+    addr = mem::FindPattern("F6 87 ? ? ? ? 02 75 06 C6 45 80 01");
+    lightsBrokenOffset = addr == 0 ? 0 : *(int*)(addr + 2);;
+    LOG(lightsBrokenOffset == 0 ? WARN : DEBUG, "Lights Broken Offset: 0x{:X}", lightsBrokenOffset);
+
+    // 874 -> visibly
+    lightsBrokenVisuallyOffset = addr == 0 ? 0 : lightsBrokenOffset + 8;
+    LOG(lightsBrokenVisuallyOffset == 0 ? WARN : DEBUG, "Lights Visually Broken Offset: 0x{:X}", lightsBrokenVisuallyOffset);
 
     addr = mem::FindPattern("\x48\x8D\x8F\x00\x00\x00\x00\x4C\x8B\xC3\xF3\x0F\x11\x7C\x24",
         "xxx????xxxxxxxx");
@@ -188,12 +214,6 @@ void VehicleExtensions::Init() {
     LOG(lightStatesOffset == 0 ? WARN : DEBUG, "Light States Offset: 0x{:X}", lightStatesOffset);
     // Or "8A 96 ? ? ? ? 0F B6 C8 84 D2 41", +10 or something (+31 is the engine starting bit), (0x928 starting addr)
 
-    // Figuring out indicator timing: LieutenantDan
-    addr = mem::FindPattern("\x44\x0F\xB7\x91\xDC\x00\x00\x00\x0F\xB7\x81\xB0\x0A\x00\x00\x41\xB9\x01\x00\x00\x00\x44\x03\x15\x8C\x63\xDF\x01",
-        "xxxx????xxx????xxxxxxxxx????");
-    indicatorTimingOffset = addr == 0 ? 0 : *(int*)(addr + 4);
-    LOG(indicatorTimingOffset == 0 ? WARN : DEBUG, "Indicator timing offset: 0x{:X}", indicatorTimingOffset);
-
     addr = mem::FindPattern("\x74\x0A\xF3\x0F\x11\xB3\x1C\x09\x00\x00\xEB\x25", "xxxxxx????xx");
     steeringAngleInputOffset = addr == 0 ? 0 : *(int*)(addr + 6);
     LOG(steeringAngleInputOffset == 0 ? WARN : DEBUG, "Steering Input Offset: 0x{:X}", steeringAngleInputOffset);
@@ -206,6 +226,16 @@ void VehicleExtensions::Init() {
 
     brakePOffset = addr == 0 ? 0 : *(int*)(addr + 6) + 0x14;
     LOG(brakePOffset == 0 ? WARN : DEBUG, "BrakeP Offset: 0x{:X}", brakePOffset);
+
+    if (g_gameVersion >= G_VER_1_0_2060_0_STEAM) {
+        addr = mem::FindPattern("8A C2 24 01 C0 E0 04 08 81");
+        handbrakeOffset = addr == 0 ? 0 : *(int*)(addr + 19);
+    }
+    else {
+        addr = mem::FindPattern("\x44\x88\xA3\x00\x00\x00\x00\x45\x8A\xF4", "xxx????xxx");
+        handbrakeOffset = addr == 0 ? 0 : *(int*)(addr + 3);
+    }
+    LOG(handbrakeOffset == 0 ? WARN : DEBUG, "Handbrake Offset: 0x{:X}", handbrakeOffset);
 
     addr = mem::FindPattern("\x0F\x29\x7C\x24\x30\x0F\x85\xE3\x00\x00\x00\xF3\x0F\x10\xB9\x68\x09\x00\x00",
         "xx???xx????xxxx????");
@@ -233,27 +263,16 @@ void VehicleExtensions::Init() {
     numWheelsOffset = addr == 0 ? 0 : *(int*)(addr + 2);
     LOG(numWheelsOffset == 0 ? WARN : DEBUG, "Wheel Count Offset: 0x{:X}", numWheelsOffset);
 
-    addr = mem::FindPattern("\x48\x85\xC0\x74\x3C\x8B\x80\x00\x00\x00\x00\xC1\xE8\x0F", "xxxxxxx????xxx");
-    vehicleFlagsOffset = addr == 0 ? 0 : *(int*)(addr + 7);
-    LOG(vehicleFlagsOffset == 0 ? WARN : DEBUG, "Vehicle Flags Offset: 0x{:X}", vehicleFlagsOffset);
+    addr = mem::FindPattern("F3 0F 59 BF ? ? ? ? 4D 85 E4 0F 8E ? ? ? ?");
+    gravityOffset = addr == 0 ? 0 : *(int*)(addr + 4);
+    LOG(gravityOffset == 0 ? WARN : DEBUG, "Gravity Offset: 0x{:X}", gravityOffset);
+
+    // Wheel stuff offset from here
 
     addr = mem::FindPattern("\x0F\xBA\xAB\xEC\x01\x00\x00\x09\x0F\x2F\xB3\x40\x01\x00\x00\x48\x8B\x83\x20\x01\x00\x00",
         "xx?????xxx???xxxx?????");
-    steeringMultOffset = addr == 0 ? 0 : *(int*)(addr + 11);
-    LOG(steeringMultOffset == 0 ? WARN : DEBUG, "Steering Multiplier Offset: 0x{:X}", steeringMultOffset);
-
-    addr = mem::FindPattern("\x75\x11\x48\x8b\x01\x8b\x88", "xxxxxxx");
-    wheelFlagsOffset = addr == 0 ? 0 : *(int*)(addr + 7);
-    LOG(wheelFlagsOffset == 0 ? WARN : DEBUG, "Wheel Flags Offset: 0x{:X}", wheelFlagsOffset);
-
-    wheelDownforceOffset = addr == 0 ? 0 : *(int*)(addr + 7) + 0x1C;
-    LOG(wheelDownforceOffset == 0 ? WARN : DEBUG, "Wheel Downforce Offset: 0x{:X}", wheelDownforceOffset);
-
-    addr = mem::FindPattern("\x75\x24\xF3\x0F\x10\x81\xE0\x01\x00\x00\xF3\x0F\x5C\xC1", "xxxxx???xxxx??");
-    wheelHealthOffset = addr == 0 ? 0 : *(int*)(addr + 6);
-    LOG(wheelHealthOffset == 0 ? WARN : DEBUG, "Wheel Health Offset: 0x{:X}", wheelHealthOffset);
-
-    // wheelHealthOffset + float = tyre health
+    wheelSteerMultOffset = addr == 0 ? 0 : *(int*)(addr + 11);
+    LOG(wheelSteerMultOffset == 0 ? WARN : DEBUG, "Wheel Steering Multiplier Offset: 0x{:X}", wheelSteerMultOffset);
 
     addr = mem::FindPattern("\x45\x0f\x57\xc9\xf3\x0f\x11\x83\x60\x01\x00\x00\xf3\x0f\x5c", "xxx?xxx???xxxxx");
     wheelSuspensionCompressionOffset = addr == 0 ? 0 : *(int*)(addr + 8);
@@ -266,34 +285,7 @@ void VehicleExtensions::Init() {
     wheelOverheatOffset = addr == 0 ? 0 : (*(int*)(addr + 8)) + 0xc + 0x08;
     LOG(wheelOverheatOffset == 0 ? WARN : DEBUG, "Wheel Overheat Offset: 0x{:X}", wheelOverheatOffset);
 
-    if (g_gameVersion >= G_VER_1_0_1737_0_STEAM) {
-        addr = mem::FindPattern("\x0F\x2F\x81\xBC\x01\x00\x00" "\x0F\x97\xC0" "\xEB\x00" "\xD1\x00", "xx???xx" "xxx" "x?" "x?");
-    }
-    else {
-        addr = mem::FindPattern("\x0F\x2F\x81\xBC\x01\x00\x00" "\x0F\x97\xC0\xEB\xDA", "xx???xx" "xxxxx");
-    }
-    wheelSteeringAngleOffset = addr == 0 ? 0 : *(int*)(addr + 3);
-    LOG(wheelSteeringAngleOffset == 0 ? WARN : DEBUG, "Wheel Steering Angle Offset: 0x{:X}", wheelSteeringAngleOffset);
-
-    wheelLoadOffset = addr == 0 ? 0 : *(int*)(addr + 3) - 0x10;
-    LOG(wheelLoadOffset == 0 ? WARN : DEBUG, "Wheel Load Offset: 0x{:X}", wheelLoadOffset);
-
-    wheelBrakeOffset = addr == 0 ? 0 : (*(int*)(addr + 3)) + 0x4;
-    LOG(wheelBrakeOffset == 0 ? WARN : DEBUG, "Wheel Brake Offset: 0x{:X}", wheelBrakeOffset);
-
-    wheelPowerOffset = addr == 0 ? 0 : (*(int*)(addr + 3)) + 0x8;
-    LOG(wheelPowerOffset == 0 ? WARN : DEBUG, "Wheel Power Offset: 0x{:X}", wheelPowerOffset);
-
-    wheelTractionVectorLengthOffset = addr == 0 ? 0 : (*(int*)(addr + 3)) - 0x14;
-    LOG(wheelTractionVectorLengthOffset == 0 ? WARN : DEBUG, "Wheel Traction Vector Length Offset: 0x{:X}", wheelTractionVectorLengthOffset);
-
-    wheelTractionVectorYOffset = addr == 0 ? 0 : (*(int*)(addr + 3)) - 0x0C;
-    LOG(wheelTractionVectorYOffset == 0 ? WARN : DEBUG, "Wheel Traction Vector Y Offset: 0x{:X}", wheelTractionVectorYOffset);
-
-    wheelTractionVectorXOffset = addr == 0 ? 0 : (*(int*)(addr + 3)) - 0x08;
-    LOG(wheelTractionVectorXOffset == 0 ? WARN : DEBUG, "Wheel Traction Vector X Offset: 0x{:X}", wheelTractionVectorXOffset);
-
-    // Only tested for b2245
+    // Material stuff only tested for b2245
     addr = mem::FindPattern("89 8B ? ? 00 00 E8 ? ? ? ? 0F 57 ?");
     wheelMatTyreGripOffset = addr == 0 ? 0 : (*(int*)(addr + 2));
     LOG(wheelMatTyreGripOffset == 0 ? WARN : DEBUG, "Wheel Material TYRE_GRIP Offset: 0x{:X}", wheelMatTyreGripOffset);
@@ -307,9 +299,50 @@ void VehicleExtensions::Init() {
     wheelMatTopSpeedMultOffset = addr == 0 ? 0 : (*(int*)(addr + 2) + 12);
     LOG(wheelMatTopSpeedMultOffset == 0 ? WARN : DEBUG, "Wheel Material TOP_SPEED_MULT Offset: 0x{:X}", wheelMatTopSpeedMultOffset);
 
+    if (g_gameVersion >= G_VER_1_0_1737_0_STEAM) {
+        addr = mem::FindPattern("\x0F\x2F\x81\xBC\x01\x00\x00" "\x0F\x97\xC0" "\xEB\x00" "\xD1\x00", "xx???xx" "xxx" "x?" "x?");
+    }
+    else {
+        addr = mem::FindPattern("\x0F\x2F\x81\xBC\x01\x00\x00" "\x0F\x97\xC0\xEB\xDA", "xx???xx" "xxxxx");
+    }
+
+    wheelTractionVectorLengthOffset = addr == 0 ? 0 : (*(int*)(addr + 3)) - 0x14;
+    LOG(wheelTractionVectorLengthOffset == 0 ? WARN : DEBUG, "Wheel Traction Vector Length Offset: 0x{:X}", wheelTractionVectorLengthOffset);
+
+    wheelLoadOffset = addr == 0 ? 0 : *(int*)(addr + 3) - 0x10;
+    LOG(wheelLoadOffset == 0 ? WARN : DEBUG, "Wheel Load Offset: 0x{:X}", wheelLoadOffset);
+
+    wheelTractionVectorYOffset = addr == 0 ? 0 : (*(int*)(addr + 3)) - 0x0C;
+    LOG(wheelTractionVectorYOffset == 0 ? WARN : DEBUG, "Wheel Traction Vector Y Offset: 0x{:X}", wheelTractionVectorYOffset);
+
+    wheelTractionVectorXOffset = addr == 0 ? 0 : (*(int*)(addr + 3)) - 0x08;
+    LOG(wheelTractionVectorXOffset == 0 ? WARN : DEBUG, "Wheel Traction Vector X Offset: 0x{:X}", wheelTractionVectorXOffset);
+
+    wheelSteeringAngleOffset = addr == 0 ? 0 : *(int*)(addr + 3);
+    LOG(wheelSteeringAngleOffset == 0 ? WARN : DEBUG, "Wheel Steering Angle Offset: 0x{:X}", wheelSteeringAngleOffset);
+
+    wheelBrakeOffset = addr == 0 ? 0 : (*(int*)(addr + 3)) + 0x4;
+    LOG(wheelBrakeOffset == 0 ? WARN : DEBUG, "Wheel Brake Offset: 0x{:X}", wheelBrakeOffset);
+
+    wheelPowerOffset = addr == 0 ? 0 : (*(int*)(addr + 3)) + 0x8;
+    LOG(wheelPowerOffset == 0 ? WARN : DEBUG, "Wheel Power Offset: 0x{:X}", wheelPowerOffset);
+
+    addr = mem::FindPattern("\x75\x24\xF3\x0F\x10\x81\xE0\x01\x00\x00\xF3\x0F\x5C\xC1", "xxxxx???xxxx??");
+    wheelHealthOffset = addr == 0 ? 0 : *(int*)(addr + 6);
+    LOG(wheelHealthOffset == 0 ? WARN : DEBUG, "Wheel Health Offset: 0x{:X}", wheelHealthOffset);
+
+    // wheelHealthOffset + float = tyre health
+
+    addr = mem::FindPattern("\x75\x11\x48\x8b\x01\x8b\x88", "xxxxxxx");
+    wheelFlagsOffset = addr == 0 ? 0 : *(int*)(addr + 7);
+    LOG(wheelFlagsOffset == 0 ? WARN : DEBUG, "Wheel Flags Offset: 0x{:X}", wheelFlagsOffset);
+
     addr = mem::FindPattern("88 8B ? ? 00 00 41 0F B6 47 51 66 89 83 ? ? 00 00");
     wheelMatTypeOffset = addr == 0 ? 0 : (*(int*)(addr + 2));
     LOG(wheelMatTypeOffset == 0 ? WARN : DEBUG, "Wheel Material Type Offset: 0x{:X}", wheelMatTypeOffset);
+
+    wheelDownforceOffset = addr == 0 ? 0 : *(int*)(addr + 2) + 0x16;
+    LOG(wheelDownforceOffset == 0 ? WARN : DEBUG, "Wheel Downforce Offset: 0x{:X}", wheelDownforceOffset);
 }
 
 BYTE* VehicleExtensions::GetAddress(Vehicle handle) {
@@ -364,6 +397,30 @@ float VehicleExtensions::GetFuelLevel(Vehicle handle) {
 void VehicleExtensions::SetFuelLevel(Vehicle handle, float value) {
     if (fuelLevelOffset == 0) return;
     *reinterpret_cast<float*>(GetAddress(handle) + fuelLevelOffset) = value;
+}
+
+uint32_t VehicleExtensions::GetLightsBroken(Vehicle handle) {
+    if (lightsBrokenOffset == 0) return 0;
+    auto address = GetAddress(handle);
+    return *reinterpret_cast<uint32_t*>(address + lightsBrokenOffset);
+}
+
+void VehicleExtensions::SetLightsBroken(Vehicle handle, uint32_t value) {
+    if (lightsBrokenOffset == 0) return;
+    auto address = GetAddress(handle);
+    *reinterpret_cast<uint32_t*>(address + lightsBrokenOffset) = value;
+}
+
+uint32_t VehicleExtensions::GetLightsBrokenVisual(Vehicle handle) {
+    if (lightsBrokenVisuallyOffset == 0) return 0;
+    auto address = GetAddress(handle);
+    return *reinterpret_cast<uint32_t*>(address + lightsBrokenVisuallyOffset);
+}
+
+void VehicleExtensions::SetLightsBrokenVisual(Vehicle handle, uint32_t value) {
+    if (lightsBrokenVisuallyOffset == 0) return;
+    auto address = GetAddress(handle);
+    *reinterpret_cast<uint32_t*>(address + lightsBrokenVisuallyOffset) = value;
 }
 
 uint16_t VehicleExtensions::GetGearNext(Vehicle handle) {
@@ -545,6 +602,18 @@ bool VehicleExtensions::GetIndicatorHigh(Vehicle handle, int gameTime) {
     return a == 1;
 }
 
+float VehicleExtensions::GetGravity(Vehicle handle) {
+    if (gravityOffset == 0) return 0.0f;
+    auto address = GetAddress(handle);
+    return *reinterpret_cast<float*>(address + gravityOffset);
+}
+
+void VehicleExtensions::SetGravity(Vehicle handle, float value) {
+    if (gravityOffset == 0) return;
+    auto address = GetAddress(handle);
+    *reinterpret_cast<float*>(address + gravityOffset) = value;
+}
+
 float VehicleExtensions::GetSteeringInputAngle(Vehicle handle) {
     if (steeringAngleInputOffset == 0) return 0;
     auto address = GetAddress(handle);
@@ -711,6 +780,47 @@ void VehicleExtensions::SetVisualHeight(Vehicle handle, float height) {
     *reinterpret_cast<float*>(wheelPtr + offset) = height;
 }
 
+uint8_t VehicleExtensions::GetWheelIdMem(Vehicle handle, uint8_t index) {
+    auto wheelPtr = GetWheelsPtr(handle);
+    if (index > GetNumWheels(handle))
+        return 0xFF; // Hope this doesn't backfire LMAO
+
+    auto wheelAddr = *reinterpret_cast<uint64_t*>(wheelPtr + 0x008 * index);
+    return *reinterpret_cast<uint8_t*>(wheelAddr + 0x108); // pray to R* devs this doesn't change
+}
+
+std::vector<Vector3> VehicleExtensions::GetWheelBoneVelocity(Vehicle handle) {
+    auto wheels = GetWheelPtrs(handle);
+    std::vector<Vector3> values;
+
+    values.reserve(wheels.size());
+    for (auto wheelAddr : wheels) {
+        values.emplace_back(Vector3{
+            *reinterpret_cast<float*>(wheelAddr + 0xB0),
+            *reinterpret_cast<float*>(wheelAddr + 0xB4),
+            *reinterpret_cast<float*>(wheelAddr + 0xB8),
+            });
+    }
+
+    return values;
+}
+
+std::vector<Vector3> VehicleExtensions::GetWheelTractionVector(Vehicle handle) {
+    auto wheels = GetWheelPtrs(handle);
+    std::vector<Vector3> values;
+
+    values.reserve(wheels.size());
+    for (auto wheelAddr : wheels) {
+        values.emplace_back(Vector3{
+            *reinterpret_cast<float*>(wheelAddr + 0xC0),
+            *reinterpret_cast<float*>(wheelAddr + 0xC4),
+            *reinterpret_cast<float*>(wheelAddr + 0xC8),
+            });
+    }
+
+    return values;
+}
+
 std::vector<float> VehicleExtensions::GetWheelHealths(Vehicle handle) {
     auto wheelPtr = GetWheelsPtr(handle);
     auto numWheels = GetNumWheels(handle);
@@ -738,25 +848,24 @@ void VehicleExtensions::SetWheelsHealth(Vehicle handle, float health) {
     }
 }
 
-float VehicleExtensions::GetSteeringMultiplier(Vehicle handle) {
+std::vector<float> VehicleExtensions::GetWheelSteeringMultipliers(Vehicle handle) {
     auto wheelPtr = GetWheelsPtr(handle);
-    auto numWheels = GetNumWheels(handle);
+    std::vector<float> mults(GetNumWheels(handle));
 
-    if (numWheels > 1) {
-        auto wheelAddr = *reinterpret_cast<uint64_t*>(wheelPtr + 0x008 * 1);
-        return abs(*reinterpret_cast<float*>(wheelAddr + steeringMultOffset));
+    for (uint8_t i = 0; i < mults.size(); ++i) {
+        auto wheelAddr = *reinterpret_cast<uint64_t*>(wheelPtr + 0x008 * i);
+        mults[i] = *reinterpret_cast<float*>(wheelAddr + wheelSteerMultOffset);
     }
-    return 1.0f;
+
+    return mults;
 }
 
-void VehicleExtensions::SetSteeringMultiplier(Vehicle handle, float value) {
+void VehicleExtensions::SetWheelSteeringMultipliers(Vehicle handle, const std::vector<float>& values) {
     auto wheelPtr = GetWheelsPtr(handle);
-    auto numWheels = GetNumWheels(handle);
 
-    for (int i = 0; i < numWheels; i++) {
+    for (uint8_t i = 0; i < values.size(); i++) {
         auto wheelAddr = *reinterpret_cast<uint64_t*>(wheelPtr + 0x008 * i);
-        float sign = Sign(*reinterpret_cast<float*>(wheelAddr + steeringMultOffset));
-        *reinterpret_cast<float*>(wheelAddr + steeringMultOffset) = value * sign;
+        *reinterpret_cast<float*>(wheelAddr + wheelSteerMultOffset) = values[i];
     }
 }
 
@@ -771,9 +880,9 @@ std::vector<Vector3> VehicleExtensions::GetWheelOffsets(Vehicle handle) {
     positions.reserve(wheels.size());
     for (auto wheelAddr : wheels) {
         positions.emplace_back(Vector3{
-            *reinterpret_cast<float*>(wheelAddr + offPosX), 0,
-            *reinterpret_cast<float*>(wheelAddr + offPosY), 0,
-            *reinterpret_cast<float*>(wheelAddr + offPosZ), 0,
+            *reinterpret_cast<float*>(wheelAddr + offPosX),
+            *reinterpret_cast<float*>(wheelAddr + offPosY),
+            *reinterpret_cast<float*>(wheelAddr + offPosZ),
             });
     }
     return positions;
@@ -796,9 +905,9 @@ std::vector<Vector3> VehicleExtensions::GetWheelLastContactCoords(Vehicle handle
     positions.reserve(wheels.size());
     for (auto wheelAddr : wheels) {
         positions.emplace_back(Vector3{
-            *reinterpret_cast<float*>(wheelAddr + offPosX), 0,
-            *reinterpret_cast<float*>(wheelAddr + offPosY), 0,
-            *reinterpret_cast<float*>(wheelAddr + offPosZ), 0,
+            *reinterpret_cast<float*>(wheelAddr + offPosX),
+            *reinterpret_cast<float*>(wheelAddr + offPosY),
+            *reinterpret_cast<float*>(wheelAddr + offPosZ),
             });
     }
     return positions;
@@ -858,22 +967,24 @@ float VehicleExtensions::GetWheelLargestAngle(Vehicle handle) {
 
 float VehicleExtensions::GetWheelAverageAngle(Vehicle handle) {
     auto angles = GetWheelSteeringAngles(handle);
+    auto mults = GetWheelSteeringMultipliers(handle);
     float wheelsSteered = 0.0f;
     float avgAngle = 0.0f;
 
     for (int i = 0; i < GetNumWheels(handle); i++) {
-        if (i < 3 && angles[i] != 0.0f) {
+        if (IsWheelSteered(handle, i)) {
             wheelsSteered += 1.0f;
-            avgAngle += angles[i];
+
+            float angle = angles[i];
+
+            // Flip the sign, otherwise we get 0 average steering
+            if (mults[i] < 0.0f)
+                angle = -angle;
+            avgAngle += angle;
         }
     }
 
-    if (wheelsSteered > 0.5f && wheelsSteered < 2.5f) { // bikes, cars, quads
-        avgAngle /= wheelsSteered;
-    }
-    else {
-        avgAngle = GetSteeringAngle(handle) * GetSteeringMultiplier(handle); // tank, forklift
-    }
+    avgAngle /= wheelsSteered;
     return avgAngle;
 }
 
@@ -1104,6 +1215,16 @@ void VehicleExtensions::SetWheelBrakePressure(Vehicle handle, uint8_t index, flo
     *reinterpret_cast<float*>(wheelAddr + wheelBrakeOffset) = value;
 }
 
+bool VehicleExtensions::IsWheelSteered(Vehicle handle, uint8_t index) {
+    if (index > GetNumWheels(handle)) return false;
+    if (wheelFlagsOffset == 0) return false;
+
+    auto wheelPtr = GetWheelsPtr(handle);
+    auto wheelAddr = *reinterpret_cast<uint64_t*>(wheelPtr + 0x008 * index);
+    auto wheelFlags = *reinterpret_cast<uint32_t*>(wheelAddr + wheelFlagsOffset);
+    return wheelFlags & eWheelFlag::FLAG_IS_STEERED;
+}
+
 bool VehicleExtensions::IsWheelPowered(Vehicle handle, uint8_t index) {
     if (index > GetNumWheels(handle)) return false;
     if (wheelFlagsOffset == 0) return false;
@@ -1111,19 +1232,19 @@ bool VehicleExtensions::IsWheelPowered(Vehicle handle, uint8_t index) {
     auto wheelPtr = GetWheelsPtr(handle);
     auto wheelAddr = *reinterpret_cast<uint64_t*>(wheelPtr + 0x008 * index);
     auto wheelFlags = *reinterpret_cast<uint32_t*>(wheelAddr + wheelFlagsOffset);
-    return wheelFlags & 0x10;
+    return wheelFlags & eWheelFlag::FLAG_IS_DRIVEN;
 }
 
-std::vector<uint16_t> VehicleExtensions::GetWheelFlags(Vehicle handle) {
+std::vector<uint32_t> VehicleExtensions::GetWheelFlags(Vehicle handle) {
     const auto numWheels = GetNumWheels(handle);
-    std::vector<uint16_t> flags(numWheels);
+    std::vector<uint32_t> flags(numWheels);
     auto wheelPtr = GetWheelsPtr(handle);
 
     if (wheelFlagsOffset == 0) return flags;
 
     for (auto i = 0; i < numWheels; ++i) {
         auto wheelAddr = *reinterpret_cast<uint64_t*>(wheelPtr + 0x008 * i);
-        flags[i] = *reinterpret_cast<uint16_t*>(wheelAddr + wheelFlagsOffset);
+        flags[i] = *reinterpret_cast<uint32_t*>(wheelAddr + wheelFlagsOffset);
     }
     return flags;
 }
@@ -1156,8 +1277,7 @@ std::vector<float> VehicleExtensions::GetWheelDownforces(Vehicle handle) {
     return dfs;
 }
 
-std::vector<float> VehicleExtensions::GetWheelOverheats(Vehicle handle)
-{
+std::vector<float> VehicleExtensions::GetWheelOverheats(Vehicle handle) {
     auto wheelPtr = GetWheelsPtr(handle);
     auto numWheels = GetNumWheels(handle);
     std::vector<float> vals(numWheels);
@@ -1204,6 +1324,16 @@ std::vector<uint32_t> VehicleExtensions::GetVehicleFlags(Vehicle handle) {
         offs[i] = *(uint32_t*)(pCVehicleModelInfo + vehicleFlagsOffset + sizeof(uint32_t) * i);
     }
     return offs;
+}
+
+float VehicleExtensions::GetMaxSteeringWheelAngle(Vehicle handle) {
+    auto address = GetAddress(handle);
+
+    if (!address)
+        return 109.0f;
+
+    auto pCVehicleModelInfo = *(uint64_t*)(address + vehicleModelInfoOffset);
+    return *(float*)(pCVehicleModelInfo + 0x54C);
 }
 
 

@@ -39,7 +39,11 @@ public:
     static float GetFuelLevel(Vehicle handle);
     static void SetFuelLevel(Vehicle handle, float value);
 
-    // TODO: CVeh + 0x84c (1604 - 1868) (Lights damaged)
+    static uint32_t GetLightsBroken(Vehicle handle);
+    static void SetLightsBroken(Vehicle handle, uint32_t value);
+
+    static uint32_t GetLightsBrokenVisual(Vehicle handle);
+    static void SetLightsBrokenVisual(Vehicle handle, uint32_t value);
 
     static uint16_t GetGearNext(Vehicle handle);
     static void SetGearNext(Vehicle handle, uint16_t value);
@@ -85,6 +89,9 @@ public:
 
     static uint32_t GetLightStates(Vehicle handle);
     static void SetLightStates(Vehicle handle, uint32_t value);
+
+    static float GetGravity(Vehicle handle);
+    static void SetGravity(Vehicle handle, float value);
 
     static bool GetIndicatorHigh(Vehicle handle, int gameTime);
 
@@ -159,11 +166,16 @@ public:
     /*
      * Wheel struct
      */
+    static uint8_t GetWheelIdMem(Vehicle handle, uint8_t index);
+
+    static std::vector<Vector3> GetWheelBoneVelocity(Vehicle handle);
+    static std::vector<Vector3> GetWheelTractionVector(Vehicle handle);
+
     static std::vector<float> GetWheelHealths(Vehicle handle);
     static void SetWheelsHealth(Vehicle handle, float health);
 
-    static float GetSteeringMultiplier(Vehicle handle);
-    static void SetSteeringMultiplier(Vehicle handle, float value);
+    static std::vector<float> GetWheelSteeringMultipliers(Vehicle handle);
+    static void SetWheelSteeringMultipliers(Vehicle handle, const std::vector<float>& values);
 
     static std::vector<Vector3> GetWheelOffsets(Vehicle handle);
     static std::vector<Vector3> GetWheelLastContactCoords(Vehicle handle);
@@ -207,8 +219,9 @@ public:
     static std::vector<float> GetWheelBrakePressure(Vehicle handle);
     static void SetWheelBrakePressure(Vehicle handle, uint8_t index, float value);
 
+    static bool IsWheelSteered(Vehicle handle, uint8_t index);
     static bool IsWheelPowered(Vehicle handle, uint8_t index);
-    static std::vector<uint16_t> GetWheelFlags(Vehicle handle);
+    static std::vector<uint32_t> GetWheelFlags(Vehicle handle);
 
     static std::vector<float> GetWheelLoads(Vehicle handle);
 
@@ -221,6 +234,8 @@ public:
     static void SetWheelHandlingPtr(Vehicle handle, uint8_t index, uint64_t value);
 
     static std::vector<uint32_t> GetVehicleFlags(Vehicle handle);
+    // In degrees. Defaults to 109?
+    static float GetMaxSteeringWheelAngle(Vehicle handle);
 private:
     VehicleExtensions() = default;
 };

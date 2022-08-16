@@ -6,26 +6,21 @@
 namespace Paths {
     std::filesystem::path GetLocalAppDataPath();
 
-    void SetModPath(std::string path);
-    std::string GetModPath();
-    std::string GetInitialModPath();
+    void SetModPath(std::filesystem::path path);
+    std::filesystem::path GetModPath();
+    std::filesystem::path GetInitialModPath();
 
     void SetModPathChanged();
     bool GetModPathChanged();
 
-    std::string GetRunningExecutablePath();
-    std::string	GetRunningExecutableFolder();
-    std::string	GetRunningExecutableName();
-    std::string	GetRunningExecutableNameWithoutExtension();
+    std::filesystem::path GetRunningExecutablePath();
 
-    std::string	GetModuleFolder(HMODULE module);
+    std::filesystem::path GetModuleFolder(HMODULE module);
     std::string	GetModuleName(HMODULE module);
     std::string	GetModuleNameWithoutExtension(HMODULE module);
 
     void SetOurModuleHandle(HMODULE module);
     HMODULE GetOurModuleHandle();
-
-    bool FileExists(const std::string& name);
 
     std::wstring GetDocumentsFolder();
 }

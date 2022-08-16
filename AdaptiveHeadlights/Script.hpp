@@ -17,4 +17,5 @@ namespace AdaptiveHeadlights {
     const std::vector<CConfig>& GetConfigs();
 
     uint32_t LoadConfigs();
+    void SaveConfigs();
 }

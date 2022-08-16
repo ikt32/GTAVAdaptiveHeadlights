@@ -40,16 +40,10 @@ void AdaptiveHeadlights::ScriptMain() {
 }
 
 void AdaptiveHeadlights::ScriptInit() {
-    const std::string settingsGeneralPath =
-        Paths::GetModuleFolder(Paths::GetOurModuleHandle()) +
-        Constants::ScriptFolder +
-        "\\settings_general.ini";
-    const std::string settingsMenuPath =
-        Paths::GetModuleFolder(Paths::GetOurModuleHandle()) +
-        Constants::ScriptFolder +
-        "\\settings_menu.ini";
+    const auto settingsGeneralPath = Paths::GetModPath() / "settings_general.ini";
+    const auto settingsMenuPath = Paths::GetModPath() / "settings_menu.ini";
 
-    settings = std::make_shared<CScriptSettings>(settingsGeneralPath);
+    settings = std::make_shared<CScriptSettings>(settingsGeneralPath.string());
     settings->Load();
     LOG(INFO, "Settings loaded");
 
@@ -59,7 +53,7 @@ void AdaptiveHeadlights::ScriptInit() {
 
     VehicleExtensions::Init();
 
-    scriptMenu = std::make_unique<CScriptMenu<CHeadlightsScript>>(settingsMenuPath,
+    scriptMenu = std::make_unique<CScriptMenu<CHeadlightsScript>>(settingsMenuPath.string(),
         []() {
             // OnInit
             settings->Load();
@@ -68,6 +62,7 @@ void AdaptiveHeadlights::ScriptInit() {
         []() {
             // OnExit
             settings->Save();
+            AdaptiveHeadlights::SaveConfigs();
         },
         BuildMenu()
     );
@@ -163,17 +158,15 @@ const std::vector<CConfig>& AdaptiveHeadlights::GetConfigs() {
 uint32_t AdaptiveHeadlights::LoadConfigs() {
     namespace fs = std::filesystem;
 
-    const std::string configsPath =
-        Paths::GetModuleFolder(Paths::GetOurModuleHandle()) +
-        Constants::ScriptFolder +
-        "\\Configs";
+    const auto configsPath = Paths::GetModPath() / "Configs";
 
     LOG(DEBUG, "Clearing and reloading configs");
 
     configs.clear();
 
-    if (!(fs::exists(fs::path(configsPath)) && fs::is_directory(fs::path(configsPath)))) {
-        LOG(ERROR, "Directory [{}] not found!", configsPath);
+    if (!(fs::exists(configsPath) && fs::is_directory(configsPath))) {
+        LOG(ERROR, "Directory [{}] not found!", configsPath.string());
+        configs.insert(configs.begin(), CConfig{});
         AdaptiveHeadlights::UpdateActiveConfigs();
         return 0;
     }
@@ -207,4 +200,26 @@ uint32_t AdaptiveHeadlights::LoadConfigs() {
 
     AdaptiveHeadlights::UpdateActiveConfigs();
     return static_cast<unsigned>(configs.size());
+}
+
+void AdaptiveHeadlights::SaveConfigs() {
+    namespace fs = std::filesystem;
+
+    const auto configsPath = Paths::GetModPath() / "Configs";
+
+    LOG(DEBUG, "Saving all configs");
+
+    if (!(fs::exists(configsPath) && fs::is_directory(configsPath))) {
+        LOG(ERROR, "Directory [{}] not found!", configsPath.string());
+        return;
+    }
+
+    for (auto& config : configs) {
+        if (!config.ModelName.empty()) {
+            auto saveType = config.Plate.empty() ?
+                CConfig::ESaveType::GenericModel :
+                CConfig::ESaveType::Specific;
+            config.Write(saveType);
+        }
+    }
 }

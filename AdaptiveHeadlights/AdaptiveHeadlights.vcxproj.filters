@@ -81,13 +81,19 @@
     <ClCompile Include="Util\Color.cpp">
       <Filter>Util</Filter>
     </ClCompile>
-    <ClCompile Include="Util\Files.cpp">
-      <Filter>Util</Filter>
-    </ClCompile>
     <ClCompile Include="Config.cpp" />
     <ClCompile Include="HeadlightsScript.cpp" />
     <ClCompile Include="HeadlightsScriptNPC.cpp" />
     <ClCompile Include="SettingsCommon.cpp" />
+    <ClCompile Include="Memory\VehicleBone.cpp">
+      <Filter>Memory</Filter>
+    </ClCompile>
+    <ClCompile Include="Memory\NativeVectors.cpp">
+      <Filter>Memory</Filter>
+    </ClCompile>
+    <ClCompile Include="Memory\NativeMatrix.cpp">
+      <Filter>Memory</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\thirdparty\GTAVMenuBase\InstructionalButton.h">
@@ -151,9 +157,6 @@
     </ClInclude>
     <ClInclude Include="HeadlightsScript.hpp" />
     <ClInclude Include="ScriptMenuUtils.hpp" />
-    <ClInclude Include="Util\Files.h">
-      <Filter>Util</Filter>
-    </ClInclude>
     <ClInclude Include="Util\FileVersion.hpp">
       <Filter>Util</Filter>
     </ClInclude>
@@ -189,5 +192,17 @@
     </ClInclude>
     <ClInclude Include="HeadlightsScriptNPC.hpp" />
     <ClInclude Include="SettingsCommon.hpp" />
+    <ClInclude Include="Memory\VehicleBone.hpp">
+      <Filter>Memory</Filter>
+    </ClInclude>
+    <ClInclude Include="Memory\NativeMatrix.hpp">
+      <Filter>Memory</Filter>
+    </ClInclude>
+    <ClInclude Include="Memory\NativeVectors.hpp">
+      <Filter>Memory</Filter>
+    </ClInclude>
+    <ClInclude Include="Memory\VehicleEnums.hpp">
+      <Filter>Memory</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

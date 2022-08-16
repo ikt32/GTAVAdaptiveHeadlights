@@ -21,26 +21,30 @@ public:
 
     std::string Name;
 
-    Hash ModelHash;
+    Hash ModelHash = 0;
     std::string ModelName;
     std::string Plate;
 
-    // Main
+    // Bones
     struct {
-        bool Enable = false;
-    } Main;
+        std::vector<std::string> LowLeft    = { "headlight_l" };
+        std::vector<std::string> LowRight   = { "headlight_r" };
+        std::vector<std::string> HighLeft   = { "headlight_l" };
+        std::vector<std::string> HighRight  = { "headlight_r" };
+    } Bones;
 
     // Correction
     struct {
         bool Enable = false;
-        float PitchAdjust = 0.0f;
+        float PitchAdjustLowBeam = 0.0f;
+        float PitchAdjustHighBeam = 0.0f;
     } Correction;
 
     // Level
     struct {
         bool Enable = false;
-        float UpperLimit = 2.0f;
-        float LowerLimit = -2.0f;
+        float UpperLimit = 5.0f;
+        float LowerLimit = -5.0f;
     } Level;
 
     // Steer
@@ -48,5 +52,5 @@ public:
         bool Enable = false;
         float SteeringMultiplier = 1.0f;
         float Limit = 10.0f;
-    };
+    } Steer;
 };

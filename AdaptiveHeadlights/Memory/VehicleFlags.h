@@ -3,8 +3,7 @@
 #include <winnt.h>
 // Unknown Modders' work
 
-enum eVehicleFlag1 : uint32_t
-{
+enum eVehicleFlag1 : uint32_t {
     FLAG_SMALL_WORKER = 0x00000001,
     FLAG_BIG = 0x00000002,
     FLAG_NO_BOOT = 0x00000004,
@@ -40,8 +39,7 @@ enum eVehicleFlag1 : uint32_t
 };
 DEFINE_ENUM_FLAG_OPERATORS(eVehicleFlag1);
 
-enum eVehicleFlag2 : uint32_t
-{
+enum eVehicleFlag2 : uint32_t {
     FLAG_EMERGENCY_SERVICE = 0x00000001,
     FLAG_DRIVER_NO_DRIVE_BY = 0x00000002,
     FLAG_NO_RESPRAY = 0x00000004,
@@ -77,8 +75,7 @@ enum eVehicleFlag2 : uint32_t
 };
 DEFINE_ENUM_FLAG_OPERATORS(eVehicleFlag2);
 
-enum eVehicleFlag3 : uint32_t
-{
+enum eVehicleFlag3 : uint32_t {
     FLAG_HAS_NO_ROOF = 0x00000001,
     FLAG_0xFC6563DB = 0x00000002,
     FLAG_RECESSED_HEADLIGHT_CORONAS = 0x00000004,
@@ -114,8 +111,7 @@ enum eVehicleFlag3 : uint32_t
 };
 DEFINE_ENUM_FLAG_OPERATORS(eVehicleFlag3);
 
-enum eVehicleFlag4 : uint32_t
-{
+enum eVehicleFlag4 : uint32_t {
     FLAG_CAN_HAVE_NEONS = 0x00000001,
     FLAG_HAS_INTERIOR_EXTRAS = 0x00000002,
     FLAG_HAS_TURRET_SEAT_ON_VEHICLE = 0x00000004,
@@ -151,8 +147,7 @@ enum eVehicleFlag4 : uint32_t
 };
 DEFINE_ENUM_FLAG_OPERATORS(eVehicleFlag4);
 
-enum eVehicleFlag5 : uint32_t
-{
+enum eVehicleFlag5 : uint32_t {
     FLAG_HAS_PARACHUTE = 0x00000001,
     FLAG_RAMP = 0x00000002,
     FLAG_HAS_EXTRA_SHUFFLE_SEAT_ON_VEHICLE = 0x00000004,
@@ -188,8 +183,7 @@ enum eVehicleFlag5 : uint32_t
 };
 DEFINE_ENUM_FLAG_OPERATORS(eVehicleFlag5);
 
-enum eVehicleFlag6 : uint32_t
-{
+enum eVehicleFlag6 : uint32_t {
     FLAG_HAS_HELI_STRAFE_MODE = 0x00000001,
     FLAG_HAS_VERTICAL_ROCKET_BOOST = 0x00000002,
     FLAG_CREATE_WEAPON_MANAGER_ON_SPAWN = 0x00000004,
@@ -201,3 +195,12 @@ enum eVehicleFlag6 : uint32_t
     FLAG_NO_HEAVY_BRAKE_ANIMATION = 0x00000100,
 };
 DEFINE_ENUM_FLAG_OPERATORS(eVehicleFlag6);
+
+enum eWheelFlag : uint32_t {
+    FLAG_UNK0 = 0x00000001,
+    FLAG_ORIENT_LEFT = 0x00000002,
+    FLAG_HAS_HANDBRAKE = 0x00000004,
+    FLAG_IS_STEERED = 0x00000008,
+    FLAG_IS_DRIVEN = 0x00000010,
+};
+DEFINE_ENUM_FLAG_OPERATORS(eWheelFlag);

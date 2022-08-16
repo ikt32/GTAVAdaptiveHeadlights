@@ -11,7 +11,7 @@ const std::unordered_map<Hash, std::string>& ASCache::Get() {
     if (!hashCache.empty())
         return hashCache;
 
-    std::string cacheFile = Paths::GetModuleFolder(Paths::GetOurModuleHandle()) + "\\AddonSpawner\\hashes.cache";
+    auto cacheFile = Paths::GetModuleFolder(Paths::GetOurModuleHandle()) / "AddonSpawner/hashes.cache";
     std::ifstream infile(cacheFile);
     if (infile.is_open()) {
         Hash hash;

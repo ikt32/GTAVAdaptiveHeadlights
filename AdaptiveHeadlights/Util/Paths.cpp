@@ -4,8 +4,8 @@
 
 namespace {
     HMODULE ourModule;
-    std::string modPath;
-    std::string initialModPath;
+    std::filesystem::path modPath;
+    std::filesystem::path initialModPath;
     bool modPathChangedThisRun = false;
 }
 
@@ -23,18 +23,18 @@ std::filesystem::path Paths::GetLocalAppDataPath() {
     return fsPath;
 }
 
-void Paths::SetModPath(std::string path) {
+void Paths::SetModPath(std::filesystem::path path) {
     if (initialModPath.empty()) {
         initialModPath = path;
     }
     modPath = path;
 }
 
-std::string Paths::GetModPath() {
+std::filesystem::path Paths::GetModPath() {
     return modPath;
 }
 
-std::string Paths::GetInitialModPath() {
+std::filesystem::path Paths::GetInitialModPath() {
     return initialModPath;
 }
 
@@ -46,41 +46,13 @@ bool Paths::GetModPathChanged() {
     return modPathChangedThisRun;
 }
 
-std::string Paths::GetRunningExecutablePath() {
+std::filesystem::path Paths::GetRunningExecutablePath() {
     char fileName[MAX_PATH];
     GetModuleFileNameA(nullptr, fileName, MAX_PATH);
     return fileName;
 }
 
-std::string Paths::GetRunningExecutableFolder() {
-    char fileName[MAX_PATH];
-    GetModuleFileNameA(nullptr, fileName, MAX_PATH);
-
-    std::string currentPath = fileName;
-    return currentPath.substr(0, currentPath.find_last_of("\\"));
-}
-
-std::string Paths::GetRunningExecutableName() {
-    char fileName[MAX_PATH];
-    GetModuleFileNameA(nullptr, fileName, MAX_PATH);
-
-    std::string fullPath = fileName;
-
-    size_t lastIndex = fullPath.find_last_of("\\") + 1;
-    return fullPath.substr(lastIndex, fullPath.length() - lastIndex);
-}
-
-std::string Paths::GetRunningExecutableNameWithoutExtension() {
-    std::string fileNameWithExtension = GetRunningExecutableName();
-    size_t lastIndex = fileNameWithExtension.find_last_of(".");
-    if (lastIndex == -1) {
-        return fileNameWithExtension;
-    }
-
-    return fileNameWithExtension.substr(0, lastIndex);
-}
-
-std::string Paths::GetModuleFolder(const HMODULE module) {
+std::filesystem::path Paths::GetModuleFolder(const HMODULE module) {
     char fileName[MAX_PATH];
     GetModuleFileNameA(module, fileName, MAX_PATH);
 
@@ -116,11 +88,6 @@ void Paths::SetOurModuleHandle(const HMODULE module) {
 
 HMODULE Paths::GetOurModuleHandle() {
     return ourModule;
-}
-
-bool Paths::FileExists(const std::string& name) {
-    struct stat buffer;
-    return (stat(name.c_str(), &buffer) == 0);
 }
 
 std::wstring Paths::GetDocumentsFolder() {

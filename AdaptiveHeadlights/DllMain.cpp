@@ -62,25 +62,25 @@ void initializePaths(HMODULE hInstance) {
 
     auto localAppDataPath = Paths::GetLocalAppDataPath();
     auto localAppDataModPath = localAppDataPath / Constants::iktFolder / Constants::ScriptFolder;
-    std::string originalModPath = Paths::GetModuleFolder(hInstance) + std::string("\\") + Constants::ScriptFolder;
+    auto originalModPath = Paths::GetModuleFolder(hInstance) / Constants::ScriptFolder;
     Paths::SetModPath(originalModPath);
 
     bool useAltModPath = false;
-    if (std::filesystem::exists(localAppDataModPath)) {
+    if (fs::exists(localAppDataModPath)) {
         useAltModPath = true;
     }
 
-    std::string modPath;
-    std::string logFile;
+    fs::path modPath;
+    fs::path logFile;
 
     // Use LocalAppData if it already exists.
     if (useAltModPath) {
-        modPath = localAppDataModPath.string();
-        logFile = (localAppDataModPath / (Paths::GetModuleNameWithoutExtension(hInstance) + ".log")).string();
+        modPath = localAppDataModPath;
+        logFile = localAppDataModPath / (Paths::GetModuleNameWithoutExtension(hInstance) + ".log");
     }
     else {
         modPath = originalModPath;
-        logFile = modPath + std::string("\\") + Paths::GetModuleNameWithoutExtension(hInstance) + ".log";
+        logFile = modPath / (Paths::GetModuleNameWithoutExtension(hInstance) + ".log");
     }
 
     Paths::SetModPath(modPath);
@@ -89,18 +89,21 @@ void initializePaths(HMODULE hInstance) {
         fs::create_directories(modPath);
     }
 
-    g_Logger.SetFile(logFile);
+    g_Logger.SetFile(logFile.string());
     g_Logger.Clear();
 
     if (g_Logger.Error()) {
-        modPath = localAppDataModPath.string();
-        logFile = (localAppDataModPath / (Paths::GetModuleNameWithoutExtension(hInstance) + ".log")).string();
+        modPath = localAppDataModPath;
+        logFile = localAppDataModPath / (Paths::GetModuleNameWithoutExtension(hInstance) + ".log");
         fs::create_directories(modPath);
 
         Paths::SetModPath(modPath);
-        g_Logger.SetFile(logFile);
+        g_Logger.SetFile(logFile.string());
 
-        fs::copy(fs::path(originalModPath), localAppDataModPath, fs::copy_options::update_existing | fs::copy_options::recursive);
+        fs::copy(originalModPath, localAppDataModPath,
+            fs::copy_options::update_existing | fs::copy_options::recursive);
+
+        std::vector<std::string> messages;
 
         // Fix perms
         for (auto& path : fs::recursive_directory_iterator(localAppDataModPath)) {
@@ -108,32 +111,35 @@ void initializePaths(HMODULE hInstance) {
                 fs::permissions(path, fs::perms::all);
             }
             catch (std::exception& e) {
-                LOG(ERROR, "Failed to set permissions on [{}]: {}.", path.path().string(), e.what());
+                messages.push_back(
+                    std::format("Failed to set permissions on [{}]: {}",
+                        path.path().string(), e.what()));
             }
         }
 
         g_Logger.ClearError();
         g_Logger.Clear();
-        LOG(WARN, "Copied to [{}] from [{}] due to read/write issues.", modPath, originalModPath);
+
+        LOG(WARN, "Copied to [{}] from [{}] due to read/write issues.",
+            modPath.string(), originalModPath.string());
+
+        if (!messages.empty()) {
+            LOG(WARN, "Encountered issues while updating permissions:");
+            for (const auto& message : messages) {
+                LOG(WARN, "{}", message);
+            }
+        }
     }
 }
 
 BOOL APIENTRY DllMain(HMODULE hInstance, DWORD reason, LPVOID lpReserved) {
-    const std::string modPath = Paths::GetModuleFolder(hInstance) + Constants::ScriptFolder;
-    const std::string logFile = modPath + "\\" + Paths::GetModuleNameWithoutExtension(hInstance) + ".log";
-
-    if (!fs::is_directory(modPath) || !fs::exists(modPath)) {
-        fs::create_directory(modPath);
-    }
-
-    g_Logger.SetFile(logFile);
-    Paths::SetOurModuleHandle(hInstance);
-
     switch (reason) {
         case DLL_PROCESS_ATTACH: {
+            g_Logger.SetMinLevel(DEBUG);
             initializePaths(hInstance);
             LOG(INFO, "{} {} (built {} {})", Constants::ScriptName, Constants::DisplayVersion, __DATE__, __TIME__);
             resolveVersion();
+            LOG(INFO, "Data path: {}", Paths::GetModPath().string());
 
             scriptRegister(hInstance, AdaptiveHeadlights::ScriptMain);
             LOG(INFO, "Script registered");

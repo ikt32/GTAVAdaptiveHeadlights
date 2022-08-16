@@ -57,7 +57,7 @@ SVersion getExeVersion(const std::string & exe) {
 }
 
 SVersion getExeInfo() {
-    std::string currExe = Paths::GetRunningExecutablePath();
-    LOG(INFO, "Running executable: {}", currExe);
-    return getExeVersion(currExe);
+    auto currExe = Paths::GetRunningExecutablePath();
+    LOG(INFO, "Running executable: {}", currExe.string());
+    return getExeVersion(currExe.string());
 }

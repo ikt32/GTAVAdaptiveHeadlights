@@ -44,4 +44,3 @@ void CScriptSettings::Save() {
     result = ini.SaveFile(mSettingsFile.c_str());
     CHECK_LOG_SI_ERROR(result, "save");
 }
-
