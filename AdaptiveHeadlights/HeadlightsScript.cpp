@@ -248,16 +248,24 @@ void CHeadlightsScript::getSteerRotation(BoneIdxRotationMap& rotationMap) const 
     auto [lowBeams, highBeams] = getBeamsActive(mVehicle);
     std::vector<int> modifiedBoneIdxs;
     if (highBeams) {
-        if (yaw > 0.0f)
+        if (yaw > 0.0f) {
             updateAngle(mHighLeftBones, { axis, yaw }, rotationMap, modifiedBoneIdxs);
-        if (yaw < 0.0f)
+            updateAngle(mHighRightBones, { axis, yaw * 0.5f }, rotationMap, modifiedBoneIdxs);
+        }
+        if (yaw < 0.0f) {
+            updateAngle(mHighLeftBones, { axis, yaw * 0.5f }, rotationMap, modifiedBoneIdxs);
             updateAngle(mHighRightBones, { axis, yaw }, rotationMap, modifiedBoneIdxs);
+        }
     }
     if (lowBeams) {
-        if (yaw > 0.0f)
+        if (yaw > 0.0f) {
             updateAngle(mLowLeftBones, { axis, yaw }, rotationMap, modifiedBoneIdxs);
-        if (yaw < 0.0f)
+            updateAngle(mLowRightBones, { axis, yaw * 0.5f }, rotationMap, modifiedBoneIdxs);
+        }
+        if (yaw < 0.0f) {
+            updateAngle(mLowLeftBones, { axis, yaw * 0.5f }, rotationMap, modifiedBoneIdxs);
             updateAngle(mLowRightBones, { axis, yaw }, rotationMap, modifiedBoneIdxs);
+        }
     }
 }
 
