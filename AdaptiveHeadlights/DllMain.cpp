@@ -7,6 +7,7 @@
 #include "Memory/Versions.h"
 #include "Memory/VehicleExtensions.hpp"
 
+#include <GTAVMenuBase/menukeyboard.h>
 #include <inc/main.h>
 
 #include <filesystem>
@@ -142,10 +143,12 @@ BOOL APIENTRY DllMain(HMODULE hInstance, DWORD reason, LPVOID lpReserved) {
             LOG(INFO, "Data path: {}", Paths::GetModPath().string());
 
             scriptRegister(hInstance, AdaptiveHeadlights::ScriptMain);
+            keyboardHandlerRegister(NativeMenu::OnKeyboardMessage);
             LOG(INFO, "Script registered");
             break;
         }
         case DLL_PROCESS_DETACH: {
+            keyboardHandlerUnregister(NativeMenu::OnKeyboardMessage);
             scriptUnregister(hInstance);
             break;
         }
