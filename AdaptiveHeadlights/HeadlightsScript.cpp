@@ -241,7 +241,7 @@ void CHeadlightsScript::getLevelRotation(BoneIdxRotationMap& rotationMap) {
     // Body component works for all vehicles
     auto pitchBodyDeg = ENTITY::GET_ENTITY_PITCH(mVehicle);
 
-    const float horCenterSpeed = 1.5f;
+    const float horCenterSpeed = 3.5f;
     float rate = MISC::GET_FRAME_TIME() * horCenterSpeed;
     mLowpassBodyPitch = rate * pitchBodyDeg + (1.0f - rate) * mLowpassBodyPitch;
     float dynamicBodyPitch = pitchBodyDeg - mLowpassBodyPitch;
