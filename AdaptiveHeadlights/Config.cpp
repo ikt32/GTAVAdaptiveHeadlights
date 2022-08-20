@@ -92,11 +92,13 @@ CConfig CConfig::Read(const std::string& configFile) {
     parseBone(ini, "Bones", "LowRight",   config.Bones.LowRight);
     parseBone(ini, "Bones", "HighLeft",   config.Bones.HighLeft);
     parseBone(ini, "Bones", "HighRight",  config.Bones.HighRight);
+    parseBone(ini, "Bones", "Mods",       config.Bones.Mods);
 
     // [Correction]
     LOAD_VAL("Correction", "Enable", config.Correction.Enable);
     LOAD_VAL("Correction", "PitchAdjustLowBeam", config.Correction.PitchAdjustLowBeam);
     LOAD_VAL("Correction", "PitchAdjustHighBeam", config.Correction.PitchAdjustHighBeam);
+    LOAD_VAL("Correction", "PitchAdjustMods", config.Correction.PitchAdjustMods);
 
     // [Level]
     LOAD_VAL("Level", "Enable", config.Level.Enable);
@@ -159,11 +161,13 @@ bool CConfig::Write(const std::string& newName, Hash model, std::string plate, E
     SAVE_VAL("Bones", "LowRight",   fmt::format("{}", fmt::join(Bones.LowRight, " ")));
     SAVE_VAL("Bones", "HighLeft",   fmt::format("{}", fmt::join(Bones.HighLeft, " ")));
     SAVE_VAL("Bones", "HighRight",  fmt::format("{}", fmt::join(Bones.HighRight, " ")));
+    SAVE_VAL("Bones", "Mods",       fmt::format("{}", fmt::join(Bones.Mods, " ")));
 
     // [Correction]
     SAVE_VAL("Correction", "Enable", Correction.Enable);
     SAVE_VAL("Correction", "PitchAdjustLowBeam", Correction.PitchAdjustLowBeam);
     SAVE_VAL("Correction", "PitchAdjustHighBeam", Correction.PitchAdjustHighBeam);
+    SAVE_VAL("Correction", "PitchAdjustMods", Correction.PitchAdjustMods);
 
     // [Level]
     SAVE_VAL("Level", "Enable", Level.Enable);

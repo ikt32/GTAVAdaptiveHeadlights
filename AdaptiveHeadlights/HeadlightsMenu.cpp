@@ -120,6 +120,9 @@ std::vector<CScriptMenu<CHeadlightsScript>::CSubmenu> AdaptiveHeadlights::BuildM
 
             mbCtx.FloatOptionCb("High beam correction", config->Correction.PitchAdjustHighBeam,
                 -90.0f, 90.0f, 0.1f, MenuUtils::GetKbFloat);
+
+            mbCtx.FloatOptionCb("Mod beam correction", config->Correction.PitchAdjustMods,
+                -90.0f, 90.0f, 0.1f, MenuUtils::GetKbFloat);
         });
 
     submenus.emplace_back("levelmenu",

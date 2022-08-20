@@ -31,6 +31,7 @@ public:
         std::vector<std::string> LowRight   = { "headlight_r" };
         std::vector<std::string> HighLeft   = { "headlight_l" };
         std::vector<std::string> HighRight  = { "headlight_r" };
+        std::vector<std::string> Mods = { "extralight_1", "extralight_2" };
     } Bones;
 
     // Correction
@@ -38,6 +39,7 @@ public:
         bool Enable = false;
         float PitchAdjustLowBeam = 0.0f;
         float PitchAdjustHighBeam = 0.0f;
+        float PitchAdjustMods = 0.0f;
     } Correction;
 
     // Level
