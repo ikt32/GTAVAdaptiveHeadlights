@@ -5,15 +5,16 @@
 
 #include "ScriptMenuUtils.hpp"
 
-#include "Util/UI.hpp"
 #include "Util/Math.hpp"
+#include "Util/UI.hpp"
+#include "Util/Paths.hpp"
 
 #include "Memory/VehicleExtensions.hpp"
 
+#include <fmt/format.h>
+#include <shellapi.h>
 #include <format>
 #include <optional>
-
-#include "Util/Logger.hpp"
 
 using VExt = VehicleExtensions;
 
@@ -183,13 +184,23 @@ std::vector<CScriptMenu<CHeadlightsScript>::CSubmenu> AdaptiveHeadlights::BuildM
             mbCtx.Title("Developer options");
             mbCtx.Subtitle("");
 
-            mbCtx.Option("Placeholder");
+            if (mbCtx.Option("Open configuration folder",
+                { "Opens the folder with configurations in an Explorer window." })) {
+                WAIT(20);
+                PAD::_SET_CONTROL_NORMAL(0, ControlFrontendPause, 1.0f);
+                ShellExecuteA(0, "open", (Paths::GetModPath() / "Configs").string().c_str(), 0, 0, SW_SHOW);
+            }
         });
 
     return submenus;
 }
 
 std::vector<std::string> AdaptiveHeadlights::FormatConfig(CHeadlightsScript& context, const CConfig& config) {
+    std::string bones = fmt::format("{} {} {} {} {}",
+        fmt::join(config.Bones.LowLeft, " "), fmt::join(config.Bones.LowRight, " "),
+        fmt::join(config.Bones.HighLeft, " "), fmt::join(config.Bones.HighRight, " "),
+        fmt::join(config.Bones.Mods, " "));
+
     std::vector<std::string> extras{
         std::format("Name: {}", config.Name),
         std::format("Model: {}", config.ModelName.empty() ? "None (Generic)" : config.ModelName),
@@ -206,6 +217,8 @@ std::vector<std::string> AdaptiveHeadlights::FormatConfig(CHeadlightsScript& con
             std::format("Yes: Sensitivity {:.2f}x, limit {:+.2f} degrees",
                 config.Steer.SteeringMultiplier, config.Steer.Limit) :
             "No"),
+        std::format("Bones: {}", bones),
+        "Edit bones in the ini file."
     };
     return extras;
 }
