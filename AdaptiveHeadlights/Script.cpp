@@ -4,7 +4,7 @@
 #include "HeadlightsScriptNPC.hpp"
 #include "ScriptMenu.hpp"
 #include "Constants.hpp"
-
+#include "TuningBonesManip.hpp"
 #include "Util/Logger.hpp"
 #include "Util/Paths.hpp"
 #include "Util/String.hpp"
@@ -32,6 +32,7 @@ void AdaptiveHeadlights::ScriptMain() {
         LOG(INFO, "Script started");
         ScriptInit();
         initialized = true;
+        ToggleHook(true);
     }
     else {
         LOG(INFO, "Script restarted");

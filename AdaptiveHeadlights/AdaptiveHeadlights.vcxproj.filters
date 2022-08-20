@@ -20,6 +20,18 @@
     <Filter Include="thirdparty\Menu">
       <UniqueIdentifier>{3d1002af-79db-40b1-a64b-6cf65d44aa32}</UniqueIdentifier>
     </Filter>
+    <Filter Include="thirdparty\minhook">
+      <UniqueIdentifier>{a8055987-0f38-4a37-8b97-b7169cb3c91c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="thirdparty\minhook\src">
+      <UniqueIdentifier>{fab51a77-7bcd-4073-882c-bf1e6d63555b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="thirdparty\minhook\src\hde">
+      <UniqueIdentifier>{ba187677-f773-4883-8830-1bd941acdbdb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="thirdparty\minhook\include">
+      <UniqueIdentifier>{6b9206f0-708d-4f21-8ff0-f0afe615082d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\thirdparty\GTAVMenuBase\menu.cpp">
@@ -94,6 +106,22 @@
     <ClCompile Include="Memory\NativeMatrix.cpp">
       <Filter>Memory</Filter>
     </ClCompile>
+    <ClCompile Include="..\thirdparty\minhook\src\hde\hde32.c">
+      <Filter>thirdparty\minhook\src\hde</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\minhook\src\hde\hde64.c">
+      <Filter>thirdparty\minhook\src\hde</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\minhook\src\buffer.c">
+      <Filter>thirdparty\minhook\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\minhook\src\hook.c">
+      <Filter>thirdparty\minhook\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\thirdparty\minhook\src\trampoline.c">
+      <Filter>thirdparty\minhook\src</Filter>
+    </ClCompile>
+    <ClCompile Include="TuningBonesManip.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\thirdparty\GTAVMenuBase\InstructionalButton.h">
@@ -204,5 +232,30 @@
     <ClInclude Include="Memory\VehicleEnums.hpp">
       <Filter>Memory</Filter>
     </ClInclude>
+    <ClInclude Include="..\thirdparty\minhook\src\hde\hde32.h">
+      <Filter>thirdparty\minhook\src\hde</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\minhook\src\hde\hde64.h">
+      <Filter>thirdparty\minhook\src\hde</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\minhook\src\hde\pstdint.h">
+      <Filter>thirdparty\minhook\src\hde</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\minhook\src\hde\table32.h">
+      <Filter>thirdparty\minhook\src\hde</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\minhook\src\hde\table64.h">
+      <Filter>thirdparty\minhook\src\hde</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\minhook\src\buffer.h">
+      <Filter>thirdparty\minhook\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\minhook\src\trampoline.h">
+      <Filter>thirdparty\minhook\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\thirdparty\minhook\include\MinHook.h">
+      <Filter>thirdparty\minhook\include</Filter>
+    </ClInclude>
+    <ClInclude Include="TuningBonesManip.hpp" />
   </ItemGroup>
 </Project>

@@ -1,6 +1,6 @@
 #include "Script.hpp"
 #include "Constants.hpp"
-
+#include "TuningBonesManip.hpp"
 #include "Util/FileVersion.hpp"
 #include "Util/Paths.hpp"
 #include "Util/Logger.hpp"
@@ -146,6 +146,7 @@ BOOL APIENTRY DllMain(HMODULE hInstance, DWORD reason, LPVOID lpReserved) {
             break;
         }
         case DLL_PROCESS_DETACH: {
+            ToggleHook(false);
             scriptUnregister(hInstance);
             break;
         }

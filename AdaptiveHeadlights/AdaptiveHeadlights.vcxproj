@@ -63,7 +63,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)thirdparty\ScriptHookV_SDK;$(SolutionDir)thirdparty\GTAVMenuBase;$(SolutionDir)thirdparty;$(SolutionDir)thirdparty\fmt\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)thirdparty\ScriptHookV_SDK;$(SolutionDir)thirdparty\GTAVMenuBase;$(SolutionDir)thirdparty;$(SolutionDir)thirdparty\fmt\include;$(SolutionDir)thirdparty\minhook\include</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32_LEAN_AND_MEAN;NOMINMAX;NOGDI;CTM_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
@@ -85,6 +85,11 @@
     <ClCompile Include="..\thirdparty\GTAVMenuBase\menumemutils.cpp" />
     <ClCompile Include="..\thirdparty\GTAVMenuBase\menusettings.cpp" />
     <ClCompile Include="..\thirdparty\GTAVMenuBase\menuutils.cpp" />
+    <ClCompile Include="..\thirdparty\minhook\src\buffer.c" />
+    <ClCompile Include="..\thirdparty\minhook\src\hde\hde32.c" />
+    <ClCompile Include="..\thirdparty\minhook\src\hde\hde64.c" />
+    <ClCompile Include="..\thirdparty\minhook\src\hook.c" />
+    <ClCompile Include="..\thirdparty\minhook\src\trampoline.c" />
     <ClCompile Include="Config.cpp" />
     <ClCompile Include="DllMain.cpp" />
     <ClCompile Include="Memory\NativeMatrix.cpp" />
@@ -99,6 +104,7 @@
     <ClCompile Include="ScriptSettings.cpp" />
     <ClCompile Include="HeadlightsScript.cpp" />
     <ClCompile Include="HeadlightsScriptNPC.cpp" />
+    <ClCompile Include="TuningBonesManip.cpp" />
     <ClCompile Include="Util\AddonSpawnerCache.cpp" />
     <ClCompile Include="Util\Color.cpp" />
     <ClCompile Include="Util\FileVersion.cpp" />
@@ -118,6 +124,14 @@
     <ClInclude Include="..\thirdparty\GTAVMenuBase\menusettings.h" />
     <ClInclude Include="..\thirdparty\GTAVMenuBase\menuutils.h" />
     <ClInclude Include="..\thirdparty\GTAVMenuBase\Scaleform.h" />
+    <ClInclude Include="..\thirdparty\minhook\include\MinHook.h" />
+    <ClInclude Include="..\thirdparty\minhook\src\buffer.h" />
+    <ClInclude Include="..\thirdparty\minhook\src\hde\hde32.h" />
+    <ClInclude Include="..\thirdparty\minhook\src\hde\hde64.h" />
+    <ClInclude Include="..\thirdparty\minhook\src\hde\pstdint.h" />
+    <ClInclude Include="..\thirdparty\minhook\src\hde\table32.h" />
+    <ClInclude Include="..\thirdparty\minhook\src\hde\table64.h" />
+    <ClInclude Include="..\thirdparty\minhook\src\trampoline.h" />
     <ClInclude Include="..\thirdparty\ScriptHookV_SDK\inc\enums.h" />
     <ClInclude Include="..\thirdparty\ScriptHookV_SDK\inc\main.h" />
     <ClInclude Include="..\thirdparty\ScriptHookV_SDK\inc\nativeCaller.h" />
@@ -141,6 +155,7 @@
     <ClInclude Include="SettingsCommon.hpp" />
     <ClInclude Include="HeadlightsScript.hpp" />
     <ClInclude Include="HeadlightsScriptNPC.hpp" />
+    <ClInclude Include="TuningBonesManip.hpp" />
     <ClInclude Include="Util\AddonSpawnerCache.hpp" />
     <ClInclude Include="Util\Color.h" />
     <ClInclude Include="Util\FileVersion.hpp" />
