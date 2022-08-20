@@ -1,5 +1,6 @@
 #pragma once
 #include "HeadlightsScript.hpp"
+#include "HeadlightsScriptNPC.hpp"
 #include "ScriptMenu.hpp"
 
 namespace AdaptiveHeadlights {
@@ -14,6 +15,7 @@ namespace AdaptiveHeadlights {
     CHeadlightsScript* GetScript();
     uint64_t GetNPCScriptCount();
     void ClearNPCScripts();
+    const std::vector<std::shared_ptr<CHeadlightsScriptNPC>>& GetNPCScripts();
     const std::vector<CConfig>& GetConfigs();
 
     uint32_t LoadConfigs();

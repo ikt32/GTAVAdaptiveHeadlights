@@ -173,8 +173,8 @@ std::vector<CScriptMenu<CHeadlightsScript>::CSubmenu> AdaptiveHeadlights::BuildM
             mbCtx.Title("NPC options");
             mbCtx.Subtitle("");
 
-            mbCtx.BoolOption("Use player light settings", AdaptiveHeadlights::GetSettings().Main.EnableNPC,
-                { "Use the players' brightness, range, etc. from visualsettings.dat, for the NPCs." });
+            mbCtx.BoolOption("Enable for NPC vehicles", AdaptiveHeadlights::GetSettings().Main.EnableNPC,
+                { "Might be performance-heavy." });
         });
 
     /* mainmenu -> developermenu */

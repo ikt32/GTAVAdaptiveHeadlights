@@ -152,6 +152,10 @@ void AdaptiveHeadlights::ClearNPCScripts() {
     npcScriptInsts.clear();
 }
 
+const std::vector<std::shared_ptr<CHeadlightsScriptNPC>>& AdaptiveHeadlights::GetNPCScripts() {
+    return npcScriptInsts;
+}
+
 const std::vector<CConfig>& AdaptiveHeadlights::GetConfigs() {
     return configs;
 }

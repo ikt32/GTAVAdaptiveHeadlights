@@ -17,10 +17,7 @@ CHeadlightsScriptNPC::~CHeadlightsScriptNPC() {
 }
 
 void CHeadlightsScriptNPC::Tick() {
-    if (mSettings.Main.EnableNPC && !mPlayerModeActive) {
-        VEHICLE::SET_VEHICLE_USE_PLAYER_LIGHT_SETTINGS(mVehicle, true);
-    }
-    else if (!mSettings.Main.EnableNPC && mPlayerModeActive) {
-        VEHICLE::SET_VEHICLE_USE_PLAYER_LIGHT_SETTINGS(mVehicle, false);
+    if (mActiveConfig) {
+        update();
     }
 }
