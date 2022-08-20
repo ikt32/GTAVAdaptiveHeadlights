@@ -192,7 +192,7 @@ static void* CVehicleStreamRenderGfx_GetModFragType_detour(void* thisStreamRende
     return clonedFragType->gtaFragType_Buffer;
 }
 
-void ToggleHook(bool hook) {
+void TuningBones::ToggleHook(bool hook) {
     if (!fnAddr)
         fnAddr = (void*)mem::FindPattern("80 FA 33 73 57 0F B6 C2 48 8B 8C C1 ? ? ? ? 48 85 C9 74 47 8B 01");
 
@@ -222,7 +222,7 @@ void ToggleHook(bool hook) {
     }
 }
 
-void ClearStaleEntries() {
+void TuningBones::ClearStaleEntries() {
     std::scoped_lock lock(mapMutex);
     for (auto instIt = clonedFragTypes.begin(); instIt != clonedFragTypes.end();) {
         if (!mem::GetAddressOfEntity(instIt->first.Vehicle)) {

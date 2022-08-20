@@ -1,3 +1,6 @@
 #pragma once
 
-void ToggleHook(bool hook);
+namespace TuningBones {
+    void ToggleHook(bool hook);
+    void ClearStaleEntries();
+}

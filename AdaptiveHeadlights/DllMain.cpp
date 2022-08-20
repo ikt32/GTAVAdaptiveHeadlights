@@ -146,7 +146,7 @@ BOOL APIENTRY DllMain(HMODULE hInstance, DWORD reason, LPVOID lpReserved) {
             break;
         }
         case DLL_PROCESS_DETACH: {
-            ToggleHook(false);
+            TuningBones::ToggleHook(false);
             scriptUnregister(hInstance);
             break;
         }

@@ -32,7 +32,7 @@ void AdaptiveHeadlights::ScriptMain() {
         LOG(INFO, "Script started");
         ScriptInit();
         initialized = true;
-        ToggleHook(true);
+        TuningBones::ToggleHook(true);
     }
     else {
         LOG(INFO, "Script restarted");
@@ -119,6 +119,10 @@ void AdaptiveHeadlights::UpdateNPC() {
     
     for (const auto& inst : instsToDelete) {
         npcScriptInsts.erase(std::remove(npcScriptInsts.begin(), npcScriptInsts.end(), inst), npcScriptInsts.end());
+    }
+
+    if (instsToDelete.size() > 0) {
+        TuningBones::ClearStaleEntries();
     }
 }
 
