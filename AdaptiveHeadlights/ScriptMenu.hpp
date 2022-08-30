@@ -10,18 +10,18 @@ public:
     class CSubmenu {
     public:
         CSubmenu(std::string name,
-            std::function<void(NativeMenu::Menu&, T&)> menuBody)
+            std::function<void(NativeMenu::Menu&, std::shared_ptr<T>)> menuBody)
             : mName(std::move(name))
             , mBody(std::move(menuBody))
             , mPred(nullptr) { }
 
         CSubmenu(std::function<bool(NativeMenu::Menu&)> predicate,
-            std::function<void(NativeMenu::Menu&, T&)> menuBody)
+            std::function<void(NativeMenu::Menu&, std::shared_ptr<T>)> menuBody)
             : mName() // unused
             , mBody(std::move(menuBody))
             , mPred(std::move(predicate)) { }
 
-        void Update(NativeMenu::Menu& mbCtx, T& scriptContext) {
+        void Update(NativeMenu::Menu& mbCtx, std::shared_ptr<T> scriptContext) {
             if (mPred && mPred(mbCtx)) {
                 mBody(mbCtx, scriptContext);
                 return;
@@ -32,7 +32,7 @@ public:
         }
     private:
         std::string mName;
-        std::function<void(NativeMenu::Menu&, T&)> mBody;
+        std::function<void(NativeMenu::Menu&, std::shared_ptr<T>)> mBody;
         std::function<bool(NativeMenu::Menu&)> mPred;
     };
 
@@ -49,7 +49,7 @@ public:
         mMenuBase.ReadSettings();
     }
 
-    void Tick(T& scriptContext) {
+    void Tick(std::shared_ptr<T> scriptContext) {
         mMenuBase.CheckKeys();
 
         for (auto& submenu : mSubmenus) {
@@ -64,4 +64,3 @@ private:
     NativeMenu::Menu mMenuBase;
     std::vector<CSubmenu> mSubmenus;
 };
-

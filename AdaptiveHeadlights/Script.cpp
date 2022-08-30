@@ -1,10 +1,11 @@
 #include "Script.hpp"
 
 #include "HeadlightsScript.hpp"
-#include "HeadlightsScriptNPC.hpp"
 #include "ScriptMenu.hpp"
 #include "Constants.hpp"
 #include "TuningBonesManip.hpp"
+
+#include "Util/Game.hpp"
 #include "Util/Logger.hpp"
 #include "Util/Paths.hpp"
 #include "Util/String.hpp"
@@ -18,8 +19,7 @@
 
 namespace {
     std::shared_ptr<CScriptSettings> settings;
-    std::shared_ptr<CHeadlightsScript> playerScriptInst;
-    std::vector<std::shared_ptr<CHeadlightsScriptNPC>> npcScriptInsts;
+    std::vector<std::shared_ptr<CHeadlightsScript>> vehicleScripts;
     std::unique_ptr<CScriptMenu<CHeadlightsScript>> scriptMenu;
 
     std::vector<CConfig> configs;
@@ -27,20 +27,31 @@ namespace {
     bool initialized = false;
 }
 
+namespace AdaptiveHeadlights {
+    void scriptInit();
+    void scriptTick();
+
+    std::shared_ptr<CHeadlightsScript> updateScripts();
+    std::shared_ptr<CHeadlightsScript> updateScriptPlayer();
+    std::shared_ptr<CHeadlightsScript> updateScriptsNPC();
+
+    void updateActiveConfigs();
+}
+
 void AdaptiveHeadlights::ScriptMain() {
     if (!initialized) {
         LOG(INFO, "Script started");
-        ScriptInit();
+        scriptInit();
         initialized = true;
         TuningBones::ToggleHook(true);
     }
     else {
         LOG(INFO, "Script restarted");
     }
-    ScriptTick();
+    scriptTick();
 }
 
-void AdaptiveHeadlights::ScriptInit() {
+void AdaptiveHeadlights::scriptInit() {
     const auto settingsGeneralPath = Paths::GetModPath() / "settings_general.ini";
     const auto settingsMenuPath = Paths::GetModPath() / "settings_menu.ini";
 
@@ -49,8 +60,6 @@ void AdaptiveHeadlights::ScriptInit() {
     LOG(INFO, "Settings loaded");
 
     AdaptiveHeadlights::LoadConfigs();
-
-    playerScriptInst = std::make_shared<CHeadlightsScript>(*settings, configs);
 
     VehicleExtensions::Init();
 
@@ -69,47 +78,116 @@ void AdaptiveHeadlights::ScriptInit() {
     );
 }
 
-void AdaptiveHeadlights::ScriptTick() {
+void AdaptiveHeadlights::scriptTick() {
     while (true) {
-        playerScriptInst->Tick();
-
-        if (settings->Main.EnableNPC)
-            UpdateNPC();
-
-        scriptMenu->Tick(*playerScriptInst);
+        std::shared_ptr<CHeadlightsScript> playerScriptInst = updateScripts();
+        scriptMenu->Tick(playerScriptInst);
         WAIT(0);
     }
 }
 
-void AdaptiveHeadlights::UpdateNPC() {
-    std::vector<std::shared_ptr<CHeadlightsScriptNPC>> instsToDelete;
+// Returns player script, if player was in any vehicle.
+std::shared_ptr<CHeadlightsScript> AdaptiveHeadlights::updateScripts() {
+    if (settings->Main.EnableNPC) {
+        return updateScriptsNPC();
+    }
+    else {
+        return updateScriptPlayer();
+    }
+}
+
+std::shared_ptr<CHeadlightsScript> AdaptiveHeadlights::updateScriptPlayer() {
+    std::shared_ptr<CHeadlightsScript> playerScript = nullptr;
+    Vehicle playerVehicle = PED::GET_VEHICLE_PED_IS_IN(PLAYER::PLAYER_PED_ID(), false);
+    bool vehicleExists = ENTITY::DOES_ENTITY_EXIST(playerVehicle);
+    bool listChanged = false;
+
+    if (vehicleExists) {
+        // We have a vehicle!
+        if (vehicleScripts.empty()) {
+            // Nothing to check, just create player instance.
+            vehicleScripts.push_back(std::make_shared<CHeadlightsScript>(playerVehicle, *settings, configs));
+            vehicleScripts.back()->UpdateActiveConfig();
+            playerScript = vehicleScripts.back();
+            listChanged = true;
+        }
+        else if (vehicleScripts.size() == 1) {
+            if (vehicleScripts[0]->GetVehicle() == playerVehicle) {
+                // If it's our vehicle, do nothing.
+                playerScript = vehicleScripts[0];
+            }
+            else {
+                // If it's not our vehicle, replace
+                vehicleScripts.clear();
+                vehicleScripts.push_back(std::make_shared<CHeadlightsScript>(playerVehicle, *settings, configs));
+                vehicleScripts.back()->UpdateActiveConfig();
+                playerScript = vehicleScripts.back();
+                listChanged = true;
+            }
+        }
+        else {
+            // Somehow we've got more than 1 vehicle. Nuke and start over.
+            vehicleScripts.clear();
+            vehicleScripts.push_back(std::make_shared<CHeadlightsScript>(playerVehicle, *settings, configs));
+            vehicleScripts.back()->UpdateActiveConfig();
+            playerScript = vehicleScripts.back();
+            listChanged = true;
+        }
+    }
+    else {
+        // We have no vehicle :(
+        if (vehicleScripts.size() == 1) {
+            if (ENTITY::DOES_ENTITY_EXIST(vehicleScripts[0]->GetVehicle())) {
+                // This was probably the vehicle the player just left.
+                playerScript = vehicleScripts[0];
+            }
+            else {
+                // It no more be.
+                vehicleScripts.clear();
+                listChanged = true;
+            }
+        }
+        else if (vehicleScripts.size() > 1) {
+            vehicleScripts.erase(vehicleScripts.begin(), vehicleScripts.end() - 1);
+            listChanged = true;
+        }
+    }
+
+    if (listChanged)
+        TuningBones::ClearStaleEntries();
+
+    if (playerScript)
+        playerScript->Tick();
+
+    return playerScript;
+}
+
+std::shared_ptr<CHeadlightsScript> AdaptiveHeadlights::updateScriptsNPC() {
+    std::shared_ptr<CHeadlightsScript> playerScript = nullptr;
+    std::vector<std::shared_ptr<CHeadlightsScript>> instsToDelete;
     
     std::vector<Vehicle> allVehicles(1024);
     int actualSize = worldGetAllVehicles(allVehicles.data(), 1024);
     allVehicles.resize(actualSize);
     
     for (const auto& vehicle : allVehicles) {
-        if (ENTITY::IS_ENTITY_DEAD(vehicle, 0) ||
-            vehicle == playerScriptInst->GetVehicle() ||
-            !VEHICLE::GET_IS_VEHICLE_ENGINE_RUNNING(vehicle))
-            continue;
-    
-        auto it = std::find_if(npcScriptInsts.begin(), npcScriptInsts.end(), [vehicle](const auto& inst) {
+        auto it = std::find_if(vehicleScripts.begin(), vehicleScripts.end(), [vehicle](const auto& inst) {
             return inst->GetVehicle() == vehicle;
-            });
+        });
     
-        if (it == npcScriptInsts.end()) {
-            npcScriptInsts.push_back(std::make_shared<CHeadlightsScriptNPC>(vehicle, *settings, configs));
-            auto npcScriptInst = npcScriptInsts.back();
-    
-            npcScriptInst->UpdateActiveConfig(false);
+        if (it == vehicleScripts.end()) {
+            vehicleScripts.push_back(std::make_shared<CHeadlightsScript>(vehicle, *settings, configs));
+            vehicleScripts.back()->UpdateActiveConfig();
         }
     }
     
-    for (const auto& inst : npcScriptInsts) {
-        if (!ENTITY::DOES_ENTITY_EXIST(inst->GetVehicle()) ||
-            ENTITY::IS_ENTITY_DEAD(inst->GetVehicle(), 0) ||
-            inst->GetVehicle() == playerScriptInst->GetVehicle()) {
+    for (const auto& inst : vehicleScripts) {
+        if (!playerScript &&
+            Util::VehicleAvailable(inst->GetVehicle(), PLAYER::PLAYER_PED_ID(), false)) {
+            playerScript = inst;
+        }
+
+        if (!ENTITY::DOES_ENTITY_EXIST(inst->GetVehicle())) {
             instsToDelete.push_back(inst);
         }
         else {
@@ -118,20 +196,19 @@ void AdaptiveHeadlights::UpdateNPC() {
     }
     
     for (const auto& inst : instsToDelete) {
-        npcScriptInsts.erase(std::remove(npcScriptInsts.begin(), npcScriptInsts.end(), inst), npcScriptInsts.end());
+        vehicleScripts.erase(std::remove(vehicleScripts.begin(), vehicleScripts.end(), inst), vehicleScripts.end());
     }
 
     if (instsToDelete.size() > 0) {
         TuningBones::ClearStaleEntries();
     }
+
+    return playerScript;
 }
 
-void AdaptiveHeadlights::UpdateActiveConfigs() {
-    if (playerScriptInst)
-        playerScriptInst->UpdateActiveConfig(true);
-
-    for (const auto& inst : npcScriptInsts) {
-        inst->UpdateActiveConfig(false);
+void AdaptiveHeadlights::updateActiveConfigs() {
+    for (const auto& inst : vehicleScripts) {
+        inst->UpdateActiveConfig();
     }
 }
 
@@ -139,25 +216,8 @@ CScriptSettings& AdaptiveHeadlights::GetSettings() {
     return *settings;
 }
 
-CHeadlightsScript* AdaptiveHeadlights::GetScript() {
-    return playerScriptInst.get();
-}
-
-uint64_t AdaptiveHeadlights::GetNPCScriptCount() {
-    uint64_t numActive = 0;
-    for (auto& npcInstance : npcScriptInsts) {
-        if (!npcInstance->ActiveConfig()->Name.empty())
-            ++numActive;
-    }
-    return numActive;
-}
-
-void AdaptiveHeadlights::ClearNPCScripts() {
-    npcScriptInsts.clear();
-}
-
-const std::vector<std::shared_ptr<CHeadlightsScriptNPC>>& AdaptiveHeadlights::GetNPCScripts() {
-    return npcScriptInsts;
+const std::vector<std::shared_ptr<CHeadlightsScript>>& AdaptiveHeadlights::GetScripts() {
+    return vehicleScripts;
 }
 
 const std::vector<CConfig>& AdaptiveHeadlights::GetConfigs() {
@@ -176,7 +236,7 @@ uint32_t AdaptiveHeadlights::LoadConfigs() {
     if (!(fs::exists(configsPath) && fs::is_directory(configsPath))) {
         LOG(ERROR, "Directory [{}] not found!", configsPath.string());
         configs.insert(configs.begin(), CConfig{});
-        AdaptiveHeadlights::UpdateActiveConfigs();
+        AdaptiveHeadlights::updateActiveConfigs();
         return 0;
     }
 
@@ -207,7 +267,7 @@ uint32_t AdaptiveHeadlights::LoadConfigs() {
 
     LOG(INFO, "Configs loaded: {}", configs.size());
 
-    AdaptiveHeadlights::UpdateActiveConfigs();
+    AdaptiveHeadlights::updateActiveConfigs();
     return static_cast<unsigned>(configs.size());
 }
 
@@ -231,4 +291,13 @@ void AdaptiveHeadlights::SaveConfigs() {
             config.Write(saveType);
         }
     }
+}
+
+// playerOnly is !settings->Main.EnableNPC
+// Clean up NPC scripts
+void AdaptiveHeadlights::SwitchMode(bool playerOnly) {
+    if (!playerOnly)
+        return;
+
+    vehicleScripts.clear();
 }

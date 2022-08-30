@@ -95,7 +95,6 @@
     </ClCompile>
     <ClCompile Include="Config.cpp" />
     <ClCompile Include="HeadlightsScript.cpp" />
-    <ClCompile Include="HeadlightsScriptNPC.cpp" />
     <ClCompile Include="SettingsCommon.cpp" />
     <ClCompile Include="Memory\VehicleBone.cpp">
       <Filter>Memory</Filter>
@@ -218,7 +217,6 @@
     <ClInclude Include="Util\Color.h">
       <Filter>Util</Filter>
     </ClInclude>
-    <ClInclude Include="HeadlightsScriptNPC.hpp" />
     <ClInclude Include="SettingsCommon.hpp" />
     <ClInclude Include="Memory\VehicleBone.hpp">
       <Filter>Memory</Filter>

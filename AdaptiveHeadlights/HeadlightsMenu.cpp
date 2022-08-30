@@ -28,7 +28,7 @@ std::vector<CScriptMenu<CHeadlightsScript>::CSubmenu> AdaptiveHeadlights::BuildM
     std::vector<CScriptMenu<CHeadlightsScript>::CSubmenu> submenus;
     /* mainmenu */
     submenus.emplace_back("mainmenu",
-        [](NativeMenu::Menu& mbCtx, CHeadlightsScript& context) {
+        [](NativeMenu::Menu& mbCtx, std::shared_ptr<CHeadlightsScript> context) {
             mbCtx.Title(Constants::ScriptName);
             mbCtx.Subtitle(std::string("~b~") + Constants::DisplayVersion);
 
@@ -62,14 +62,14 @@ std::vector<CScriptMenu<CHeadlightsScript>::CSubmenu> AdaptiveHeadlights::BuildM
 
     /* mainmenu -> loadmenu */
     submenus.emplace_back("configsmenu",
-        [](NativeMenu::Menu& mbCtx, CHeadlightsScript& context) {
+        [](NativeMenu::Menu& mbCtx, std::shared_ptr<CHeadlightsScript> context) {
             mbCtx.Title("Manage configurations");
 
-            CConfig* config = context.ActiveConfig();
+            CConfig* config = context ? context->ActiveConfig() : nullptr;
             mbCtx.Subtitle(std::format("Current: {}", config ? config->Name : "None"));
 
             if (config == nullptr) {
-                mbCtx.Option("No active configuration");
+                mbCtx.Option("No active vehicle/configuration");
                 return;
             }
 
@@ -77,10 +77,10 @@ std::vector<CScriptMenu<CHeadlightsScript>::CSubmenu> AdaptiveHeadlights::BuildM
                 { "Create a new configuration file from the current settings.",
                   "Changes made within a configuration are saved to that configuration only.",
                   "The submenu subtitles indicate which configuration is being edited." })) {
-                PromptSave(context,
+                PromptSave(*context,
                            *config,
-                           ENTITY::GET_ENTITY_MODEL(context.GetVehicle()),
-                           VEHICLE::GET_VEHICLE_NUMBER_PLATE_TEXT(context.GetVehicle()));
+                           ENTITY::GET_ENTITY_MODEL(context->GetVehicle()),
+                           VEHICLE::GET_VEHICLE_NUMBER_PLATE_TEXT(context->GetVehicle()));
             }
 
             if (AdaptiveHeadlights::GetConfigs().empty()) {
@@ -92,21 +92,21 @@ std::vector<CScriptMenu<CHeadlightsScript>::CSubmenu> AdaptiveHeadlights::BuildM
                 bool triggered = mbCtx.OptionPlus(config.Name, {}, &selected);
 
                 if (selected) {
-                    mbCtx.OptionPlusPlus(FormatConfig(context, config), config.Name);
+                    mbCtx.OptionPlusPlus(FormatConfig(*context, config), config.Name);
                 }
 
                 if (triggered) {
-                    context.ApplyConfig(config);
+                    context->ApplyConfig(config);
                     UI::Notify(std::format("Applied config {}.", config.Name), true);
                 }
             }
         });
 
     submenus.emplace_back("correctionmenu",
-        [](NativeMenu::Menu& mbCtx, CHeadlightsScript& context) {
+        [](NativeMenu::Menu& mbCtx, std::shared_ptr<CHeadlightsScript> context) {
             mbCtx.Title("Correction");
 
-            CConfig* config = context.ActiveConfig();
+            CConfig* config = context ? context->ActiveConfig() : nullptr;
             mbCtx.Subtitle(std::format("Current: {}", config ? config->Name : "None"));
 
             if (config == nullptr) {
@@ -127,10 +127,10 @@ std::vector<CScriptMenu<CHeadlightsScript>::CSubmenu> AdaptiveHeadlights::BuildM
         });
 
     submenus.emplace_back("levelmenu",
-        [](NativeMenu::Menu& mbCtx, CHeadlightsScript& context) {
+        [](NativeMenu::Menu& mbCtx, std::shared_ptr<CHeadlightsScript> context) {
             mbCtx.Title("Self-leveling");
 
-            CConfig* config = context.ActiveConfig();
+            CConfig* config = context ? context->ActiveConfig() : nullptr;
             mbCtx.Subtitle(std::format("Current: {}", config ? config->Name : "None"));
 
             if (config == nullptr) {
@@ -148,10 +148,10 @@ std::vector<CScriptMenu<CHeadlightsScript>::CSubmenu> AdaptiveHeadlights::BuildM
         });
 
     submenus.emplace_back("steermenu",
-        [](NativeMenu::Menu& mbCtx, CHeadlightsScript& context) {
+        [](NativeMenu::Menu& mbCtx, std::shared_ptr<CHeadlightsScript> context) {
             mbCtx.Title("Correction");
 
-            CConfig* config = context.ActiveConfig();
+            CConfig* config = context ? context->ActiveConfig() : nullptr;
             mbCtx.Subtitle(std::format("Current: {}", config ? config->Name : "None"));
 
             if (config == nullptr) {
@@ -170,17 +170,21 @@ std::vector<CScriptMenu<CHeadlightsScript>::CSubmenu> AdaptiveHeadlights::BuildM
 
     /* mainmenu -> npcmenu */
     submenus.emplace_back("npcmenu",
-        [](NativeMenu::Menu& mbCtx, CHeadlightsScript& context) {
+        [](NativeMenu::Menu& mbCtx, std::shared_ptr<CHeadlightsScript> context) {
             mbCtx.Title("NPC options");
             mbCtx.Subtitle("");
 
             mbCtx.BoolOption("Enable for NPC vehicles", AdaptiveHeadlights::GetSettings().Main.EnableNPC,
                 { "Might be performance-heavy." });
+
+            int idx = 0;
+            mbCtx.IntArray("Instances", { static_cast<int>(AdaptiveHeadlights::GetScripts().size()) }, idx,
+                { "Number of vehicles the script is currently processing." });
         });
 
     /* mainmenu -> developermenu */
     submenus.emplace_back("developermenu",
-        [](NativeMenu::Menu& mbCtx, CHeadlightsScript& context) {
+        [](NativeMenu::Menu& mbCtx, std::shared_ptr<CHeadlightsScript> context) {
             mbCtx.Title("Developer options");
             mbCtx.Subtitle("");
 

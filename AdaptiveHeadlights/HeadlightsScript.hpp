@@ -10,6 +10,7 @@
 class CHeadlightsScript {
 public:
     CHeadlightsScript(
+        Vehicle vehicle,
         CScriptSettings& settings,
         std::vector<CConfig>& configs);
     virtual ~CHeadlightsScript();
@@ -19,7 +20,7 @@ public:
         return mActiveConfig;
     }
 
-    void UpdateActiveConfig(bool playerCheck);
+    void UpdateActiveConfig();
 
     // Applies the passed config onto the current active config.
     void ApplyConfig(const CConfig& config);
@@ -55,7 +56,7 @@ protected:
     CConfig mDefaultConfig;
 
     Vehicle mVehicle;
-    CConfig* mActiveConfig;
+    CConfig* mActiveConfig = nullptr;
 
     BoneIdxRotationMap mBoneIdxRotationMap;
     std::vector<BoneInfo> mLowLeftBones;
@@ -73,5 +74,6 @@ protected:
     bool mLastHeadlightOn = false;
     int mStartupCalibrationStarted = 0;
 
-    bool mIsNPC;
+    bool mEngineOnState = false;
+    int mLastEngineOffTime = 0;
 };

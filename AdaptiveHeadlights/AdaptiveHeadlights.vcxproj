@@ -103,7 +103,6 @@
     <ClCompile Include="HeadlightsMenu.cpp" />
     <ClCompile Include="ScriptSettings.cpp" />
     <ClCompile Include="HeadlightsScript.cpp" />
-    <ClCompile Include="HeadlightsScriptNPC.cpp" />
     <ClCompile Include="TuningBonesManip.cpp" />
     <ClCompile Include="Util\AddonSpawnerCache.cpp" />
     <ClCompile Include="Util\Color.cpp" />
@@ -154,7 +153,6 @@
     <ClInclude Include="ScriptSettings.hpp" />
     <ClInclude Include="SettingsCommon.hpp" />
     <ClInclude Include="HeadlightsScript.hpp" />
-    <ClInclude Include="HeadlightsScriptNPC.hpp" />
     <ClInclude Include="TuningBonesManip.hpp" />
     <ClInclude Include="Util\AddonSpawnerCache.hpp" />
     <ClInclude Include="Util\Color.h" />

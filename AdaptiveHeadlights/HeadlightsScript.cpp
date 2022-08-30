@@ -24,41 +24,25 @@
 
 using VExt = VehicleExtensions;
 
-CHeadlightsScript::CHeadlightsScript(CScriptSettings& settings, std::vector<CConfig>& configs)
+CHeadlightsScript::CHeadlightsScript(Vehicle vehicle, CScriptSettings& settings, std::vector<CConfig>& configs)
     : mSettings(settings)
     , mConfigs(configs)
     , mDefaultConfig(configs[0])
-    , mVehicle(0)
-    , mActiveConfig(nullptr)
-    , mIsNPC(false) {
+    , mVehicle(vehicle) {
 }
 
 CHeadlightsScript::~CHeadlightsScript() = default;
 
 void CHeadlightsScript::Tick() {
-    Vehicle playerVehicle = PED::GET_VEHICLE_PED_IS_IN(PLAYER::PLAYER_PED_ID(), false);
-
-    // Update active vehicle and config
-    if (playerVehicle != mVehicle) {
-        mVehicle = playerVehicle;
-
-        UpdateActiveConfig(true);
-    }
-
-    if (mActiveConfig && Util::VehicleAvailable(mVehicle, PLAYER::PLAYER_PED_ID(), false)) {
+    if (mActiveConfig) {
         update();
     }
 }
 
-void CHeadlightsScript::UpdateActiveConfig(bool playerCheck) {
-    if (!ENTITY::DOES_ENTITY_EXIST(mVehicle))
+void CHeadlightsScript::UpdateActiveConfig() {
+    if (!ENTITY::DOES_ENTITY_EXIST(mVehicle)) {
+        mActiveConfig = &mDefaultConfig;
         return;
-
-    if (playerCheck) {
-        if (!Util::VehicleAvailable(mVehicle, PLAYER::PLAYER_PED_ID(), false)) {
-            mActiveConfig = nullptr;
-            return;
-        }
     }
 
     Hash model = ENTITY::GET_ENTITY_MODEL(mVehicle);
@@ -109,8 +93,24 @@ void CHeadlightsScript::ApplyConfig(const CConfig& config) {
 
 void CHeadlightsScript::update() {
     if (!ENTITY::DOES_ENTITY_EXIST(mVehicle) ||
-        !VEHICLE::GET_IS_VEHICLE_ENGINE_RUNNING(mVehicle) ||
         !mActiveConfig) {
+        mStartupCalibrationDone = false;
+        mStartupCalibrationActive = false;
+        mLastHeadlightOn = false;
+        return;
+    }
+
+    bool engineOnState = VEHICLE::GET_IS_VEHICLE_ENGINE_RUNNING(mVehicle);
+    if (mEngineOnState && !engineOnState) {
+        mLastEngineOffTime = MISC::GET_GAME_TIMER();
+    }
+    mEngineOnState = engineOnState;
+
+    // If engine has been off for >1 second, skip this vehicle
+    // Also reset calibration stuff.
+    // >1 frame required so the "keep engine on" thing doesn't trip it.
+    if (!mEngineOnState &&
+        MISC::GET_GAME_TIMER() > mLastEngineOffTime + 1000) {
         mStartupCalibrationDone = false;
         mStartupCalibrationActive = false;
         mLastHeadlightOn = false;

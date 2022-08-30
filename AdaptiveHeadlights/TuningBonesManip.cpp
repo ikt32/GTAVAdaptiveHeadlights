@@ -122,28 +122,20 @@ static void* CVehicleStreamRenderGfx_GetModFragType_detour(void* thisStreamRende
         return origFragType;
     }
 
-    CHeadlightsScript* playerScript = AdaptiveHeadlights::GetScript();
-    auto& npcScripts = AdaptiveHeadlights::GetNPCScripts();
+    auto& scripts = AdaptiveHeadlights::GetScripts();
 
-    if (!playerScript && npcScripts.empty()) {
+    if (scripts.empty()) {
         return origFragType;
     }
 
     CHeadlightsScript* applicableScript = nullptr;
     void* streamRenderGfx = nullptr;
 
-    if (auto* foundStreamRenderGfx = GetStreamRenderGfx(playerScript, thisStreamRenderGfx);
-        foundStreamRenderGfx) {
-        applicableScript = playerScript;
-        streamRenderGfx = foundStreamRenderGfx;
-    }
-    else {
-        for (const auto& npcScript : npcScripts) {
-            if (auto* foundStreamRenderGfx = GetStreamRenderGfx(&*npcScript, thisStreamRenderGfx)) {
-                applicableScript = &*npcScript;
-                streamRenderGfx = foundStreamRenderGfx;
-                break;
-            }
+    for (const auto& npcScript : scripts) {
+        if (auto* foundStreamRenderGfx = GetStreamRenderGfx(&*npcScript, thisStreamRenderGfx)) {
+            applicableScript = &*npcScript;
+            streamRenderGfx = foundStreamRenderGfx;
+            break;
         }
     }
 
