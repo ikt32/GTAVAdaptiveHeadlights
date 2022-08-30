@@ -145,8 +145,8 @@
     <ClInclude Include="Memory\VehicleBone.hpp" />
     <ClInclude Include="Memory\VehicleEnums.hpp" />
     <ClInclude Include="Memory\VehicleExtensions.hpp" />
-    <ClInclude Include="Memory\VehicleFlags.h" />
-    <ClInclude Include="Memory\Versions.h" />
+    <ClInclude Include="Memory\VehicleFlags.hpp" />
+    <ClInclude Include="Memory\Versions.hpp" />
     <ClInclude Include="Script.hpp" />
     <ClInclude Include="ScriptMenu.hpp" />
     <ClInclude Include="ScriptMenuUtils.hpp" />

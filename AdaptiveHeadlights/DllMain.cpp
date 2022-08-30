@@ -4,7 +4,7 @@
 #include "Util/FileVersion.hpp"
 #include "Util/Paths.hpp"
 #include "Util/Logger.hpp"
-#include "Memory/Versions.h"
+#include "Memory/Versions.hpp"
 #include "Memory/VehicleExtensions.hpp"
 
 #include <inc/main.h>

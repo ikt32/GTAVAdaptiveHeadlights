@@ -1,10 +1,10 @@
 #include "VehicleExtensions.hpp"
 
 #include "NativeMemory.hpp"
-#include "Versions.h"
+#include "Versions.hpp"
 #include "Offsets.hpp"
 
-#include "VehicleFlags.h"
+#include "VehicleFlags.hpp"
 
 #include "../Util/Logger.hpp"
 
