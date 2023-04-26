@@ -138,7 +138,15 @@ std::vector<CScriptMenu<CHeadlightsScript>::CSubmenu> AdaptiveHeadlights::BuildM
                 return;
             }
 
-            mbCtx.BoolOption("Enable", config->Level.Enable);
+            mbCtx.BoolOption("Enable (suspension)", config->Level.EnableSuspension,
+                { "Suspension data based self-leveling. This is what actual cars use." });
+            mbCtx.FloatOptionCb("Speed (suspension)", config->Level.SpeedSuspension,
+                0.0f, 10.0f, 0.1f, MenuUtils::GetKbFloat);
+
+            mbCtx.BoolOption("Enable (gyroscope)", config->Level.EnableGyroscope,
+                { "Pitch based self-leveling. Can achieve better results, but not 1:1 with actual cars." });
+            mbCtx.FloatOptionCb("Speed (gyroscope)", config->Level.SpeedGyroscope,
+                0.0f, 10.0f, 0.1f, MenuUtils::GetKbFloat);
 
             mbCtx.FloatOptionCb("Lower limit", config->Level.LowerLimit,
                 -15.0f, 15.0f, 0.1f, MenuUtils::GetKbFloat);
@@ -213,7 +221,7 @@ std::vector<std::string> AdaptiveHeadlights::FormatConfig(CHeadlightsScript& con
             std::format("Yes: Low {:+.2f} / High {:+.2f} degrees",
                 config.Correction.PitchAdjustLowBeam, config.Correction.PitchAdjustHighBeam) :
             "No"),
-        std::format("Self-leveling: {}", config.Level.Enable ?
+        std::format("Self-leveling: {}", config.Level.EnableSuspension || config.Level.EnableGyroscope ?
             std::format("Yes: Between {:+.2f} and {:+.2f} degrees",
                 config.Level.LowerLimit, config.Level.UpperLimit) :
             "No"),

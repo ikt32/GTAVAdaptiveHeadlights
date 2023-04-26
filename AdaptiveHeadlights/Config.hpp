@@ -44,7 +44,12 @@ public:
 
     // Level
     struct {
-        bool Enable = false;
+        bool EnableSuspension = false;
+        float SpeedSuspension = 5.0f;
+
+        bool EnableGyroscope = false;
+        float SpeedGyroscope = 3.5f;
+
         float UpperLimit = 5.0f;
         float LowerLimit = -5.0f;
     } Level;

@@ -125,7 +125,7 @@ void CHeadlightsScript::update() {
         getCorrectionRotation(mBoneIdxRotationMap);
     }
 
-    if (mActiveConfig->Level.Enable) {
+    if (mActiveConfig->Level.EnableSuspension || mActiveConfig->Level.EnableGyroscope) {
         auto [lowBeams, highBeams] = getBeamsActive(mVehicle);
 
         if (!mStartupCalibrationDone &&
@@ -150,7 +150,7 @@ void CHeadlightsScript::update() {
         getStartupCalibration(mBoneIdxRotationMap);
     }
 
-    if (mActiveConfig->Level.Enable && mStartupCalibrationDone) {
+    if ((mActiveConfig->Level.EnableSuspension || mActiveConfig->Level.EnableGyroscope) && mStartupCalibrationDone) {
         getLevelRotation(mBoneIdxRotationMap);
     }
 
@@ -222,25 +222,28 @@ void CHeadlightsScript::getLevelRotation(BoneIdxRotationMap& rotationMap) {
     auto comp = VExt::GetWheelCompressions(mVehicle);
 
     std::optional<SSuspensionGeometry> suspensionGeometry = GetSuspensionGeometry(mVehicle);
-    if (suspensionGeometry) {
+    float pitchSuspCompRad = 0.0f;
+    if (mActiveConfig->Level.EnableSuspension && suspensionGeometry) {
         float pitchSuspRad = atan((suspensionGeometry->CompFront - suspensionGeometry->CompRear) / suspensionGeometry->Wheelbase);
         pitchSuspRad = std::clamp(pitchSuspRad, lowerLimitRad, upperLimitRad);
 
-        const float horCenterSpeed = 1.0f;
-        float rate = MISC::GET_FRAME_TIME() * horCenterSpeed;
+        float rate = MISC::GET_FRAME_TIME() * mActiveConfig->Level.SpeedSuspension;
         mLowpassSuspPitch = rate * rad2deg(pitchSuspRad) + (1.0f - rate) * mLowpassSuspPitch;
+        pitchSuspCompRad = deg2rad(mLowpassSuspPitch);
     }
 
     // Body component works for all vehicles
-    auto pitchBodyDeg = ENTITY::GET_ENTITY_PITCH(mVehicle);
+    float pitchBodyCompRad = 0.0f;
+    if (mActiveConfig->Level.EnableGyroscope) {
+        auto pitchBodyDeg = ENTITY::GET_ENTITY_PITCH(mVehicle);
 
-    const float horCenterSpeed = 3.5f;
-    float rate = MISC::GET_FRAME_TIME() * horCenterSpeed;
-    mLowpassBodyPitch = rate * pitchBodyDeg + (1.0f - rate) * mLowpassBodyPitch;
-    float dynamicBodyPitch = pitchBodyDeg - mLowpassBodyPitch;
+        const float horCenterSpeed = 3.5f;
+        float rate = MISC::GET_FRAME_TIME() * horCenterSpeed;
+        mLowpassBodyPitch = rate * pitchBodyDeg + (1.0f - rate) * mLowpassBodyPitch;
+        float dynamicBodyPitch = pitchBodyDeg - mLowpassBodyPitch;
+        pitchBodyCompRad = deg2rad(dynamicBodyPitch);
+    }
 
-    float pitchBodyCompRad = deg2rad(dynamicBodyPitch);
-    float pitchSuspCompRad = deg2rad(mLowpassSuspPitch);
     float levelPitch = std::clamp(-pitchBodyCompRad + pitchSuspCompRad, lowerLimitRad, upperLimitRad);
 
     auto [lowBeams, highBeams] = getBeamsActive(mVehicle);

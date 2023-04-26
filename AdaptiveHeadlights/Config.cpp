@@ -101,7 +101,10 @@ CConfig CConfig::Read(const std::string& configFile) {
     LOAD_VAL("Correction", "PitchAdjustMods", config.Correction.PitchAdjustMods);
 
     // [Level]
-    LOAD_VAL("Level", "Enable", config.Level.Enable);
+    LOAD_VAL("Level", "EnableSuspension", config.Level.EnableSuspension);
+    LOAD_VAL("Level", "SpeedSuspension", config.Level.SpeedSuspension);
+    LOAD_VAL("Level", "EnableGyroscope", config.Level.EnableGyroscope);
+    LOAD_VAL("Level", "SpeedGyroscope", config.Level.SpeedGyroscope);
     LOAD_VAL("Level", "UpperLimit", config.Level.UpperLimit);
     LOAD_VAL("Level", "LowerLimit", config.Level.LowerLimit);
 
@@ -170,7 +173,10 @@ bool CConfig::Write(const std::string& newName, Hash model, std::string plate, E
     SAVE_VAL("Correction", "PitchAdjustMods", Correction.PitchAdjustMods);
 
     // [Level]
-    SAVE_VAL("Level", "Enable", Level.Enable);
+    SAVE_VAL("Level", "EnableSuspension", Level.EnableSuspension);
+    SAVE_VAL("Level", "SpeedSuspension", Level.SpeedSuspension);
+    SAVE_VAL("Level", "EnableGyroscope", Level.EnableGyroscope);
+    SAVE_VAL("Level", "SpeedGyroscope", Level.SpeedGyroscope);
     SAVE_VAL("Level", "UpperLimit", Level.UpperLimit);
     SAVE_VAL("Level", "LowerLimit", Level.LowerLimit);
 
