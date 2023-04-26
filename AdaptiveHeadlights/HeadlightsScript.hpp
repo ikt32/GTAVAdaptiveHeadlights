@@ -29,7 +29,7 @@ public:
 
 protected:
     typedef std::unordered_map<int, std::vector<VehicleBones::SAxisRotation>> BoneIdxRotationMap;
-    struct BoneInfo {
+    struct SBoneInfo {
         int BoneIdx;
         uint32_t BoneDmgFlag;
     };
@@ -42,8 +42,8 @@ protected:
 
     void update();
 
-    void registerBoneMatrices(const std::vector<std::string> bones, std::vector<BoneInfo>& boneInfos);
-    void updateAngle(const std::vector<BoneInfo>& boneInfos,
+    void registerBoneMatrices(const std::vector<std::string> bones, std::vector<SBoneInfo>& boneInfos);
+    void updateAngle(const std::vector<SBoneInfo>& boneInfos,
                      VehicleBones::SAxisRotation rotation,
                      BoneIdxRotationMap& rotationMap,
                      std::vector<int>& modifiedBoneIdxs) const;
@@ -64,10 +64,10 @@ protected:
     CConfig* mActiveConfig = nullptr;
 
     BoneIdxRotationMap mBoneIdxRotationMap;
-    std::vector<BoneInfo> mLowLeftBones;
-    std::vector<BoneInfo> mLowRightBones;
-    std::vector<BoneInfo> mHighLeftBones;
-    std::vector<BoneInfo> mHighRightBones;
+    std::vector<SBoneInfo> mLowLeftBones;
+    std::vector<SBoneInfo> mLowRightBones;
+    std::vector<SBoneInfo> mHighLeftBones;
+    std::vector<SBoneInfo> mHighRightBones;
 
     float mLowpassBodyPitch = 0.0f; // degrees
     float mLowpassSuspPitch = 0.0f; // degrees

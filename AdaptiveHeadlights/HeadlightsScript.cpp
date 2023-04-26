@@ -165,7 +165,7 @@ void CHeadlightsScript::update() {
     }
 }
 
-void CHeadlightsScript::registerBoneMatrices(const std::vector<std::string> bones, std::vector<BoneInfo>& boneInfos) {
+void CHeadlightsScript::registerBoneMatrices(const std::vector<std::string> bones, std::vector<SBoneInfo>& boneInfos) {
     boneInfos.clear();
     for (const auto& boneName : bones) {
         if (auto boneIdx = ENTITY::GET_ENTITY_BONE_INDEX_BY_NAME(mVehicle, boneName.c_str());
@@ -180,7 +180,7 @@ void CHeadlightsScript::registerBoneMatrices(const std::vector<std::string> bone
     }
 }
 
-void CHeadlightsScript::updateAngle(const std::vector<BoneInfo>& boneInfos,
+void CHeadlightsScript::updateAngle(const std::vector<SBoneInfo>& boneInfos,
                                     VehicleBones::SAxisRotation rotation,
                                     BoneIdxRotationMap& rotationMap,
                                     std::vector<int>& modifiedBoneIdxs) const {
