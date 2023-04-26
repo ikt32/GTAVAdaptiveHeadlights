@@ -40,6 +40,14 @@ protected:
         float Wheelbase;
     };
 
+    enum class EWheelLayout {
+        TwoWheeler,
+        Normal,
+        MonoFront,
+        MonoRear,
+        Unknown
+    };
+
     void update();
 
     void registerBoneMatrices(const std::vector<std::string> bones, std::vector<SBoneInfo>& boneInfos);
@@ -56,6 +64,8 @@ protected:
     uint32_t getDamageFlag(const std::string& boneName) const;
 
     std::optional<SSuspensionGeometry> GetSuspensionGeometry(Vehicle vehicle) const;
+
+    void UpdateWheelLayout(Vehicle vehicle);
 
     std::vector<CConfig>& mConfigs;
     CConfig mDefaultConfig;
@@ -81,4 +91,12 @@ protected:
 
     bool mEngineOnState = false;
     int mLastEngineOffTime = 0;
+
+    EWheelLayout mWheelLayout = EWheelLayout::Unknown;
+
+    // Only used for mono front/rear layouts
+    int mFrontIdxA = 0;
+    int mFrontIdxB = 0;
+    int mRearIdxA = 0;
+    int mRearIdxB = 0;
 };

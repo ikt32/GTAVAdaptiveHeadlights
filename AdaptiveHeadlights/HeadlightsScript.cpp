@@ -28,6 +28,7 @@ CHeadlightsScript::CHeadlightsScript(Vehicle vehicle, std::vector<CConfig>& conf
     : mConfigs(configs)
     , mDefaultConfig(configs[0])
     , mVehicle(vehicle) {
+    UpdateWheelLayout(vehicle);
 }
 
 CHeadlightsScript::~CHeadlightsScript() = default;
@@ -392,16 +393,14 @@ uint32_t CHeadlightsScript::getDamageFlag(const std::string& boneName) const {
 }
 
 std::optional<CHeadlightsScript::SSuspensionGeometry> CHeadlightsScript::GetSuspensionGeometry(Vehicle vehicle) const {
+    if (mWheelLayout == EWheelLayout::Unknown)
+        return std::nullopt;
+
     auto comp = VExt::GetWheelCompressions(vehicle);
     auto offsets = VExt::GetWheelOffsets(vehicle);
 
-    // Monocycle: No suspension to compensate for.
-    if (comp.size() < 2) {
-        return std::nullopt;
-    }
-
     // Bikes: Front wheel = [1], Rear wheel = [0]
-    if (comp.size() == 2) {
+    if (mWheelLayout == EWheelLayout::TwoWheeler) {
         float compFrontAxle = comp[1];
         float compRearAxle = comp[0];
         float wheelBase = abs(offsets[1].y - offsets[0].y);
@@ -414,7 +413,7 @@ std::optional<CHeadlightsScript::SSuspensionGeometry> CHeadlightsScript::GetSusp
     }
 
     // Even: Frontmost and rearmost axles
-    if (comp.size() % 2 == 0) {
+    if (mWheelLayout == EWheelLayout::Normal) {
         const size_t rearIdxA = comp.size() - 2;
         const size_t rearIdxB = comp.size() - 1;
 
@@ -428,59 +427,89 @@ std::optional<CHeadlightsScript::SSuspensionGeometry> CHeadlightsScript::GetSusp
             .Wheelbase = wheelBase
         };
     }
-    // Odd: Find out which is which.
-    // This assumes the vehicle author is not on crack and neatly distributed
-    // the front wheels in front of the COM, and rears behind the COM...
-    else {
-        std::vector<int> frontIdxs;
-        std::vector<int> rearIdxs;
-        for (int i = 0; i < offsets.size(); ++i) {
-            auto offset = offsets[i];
-            if (offset.y > -0.0f) {
-                frontIdxs.push_back(i);
-            }
-            else {
-                rearIdxs.push_back(i);
-            }
-        }
 
-        if (frontIdxs.empty() || rearIdxs.empty()) {
-            return std::nullopt;
-        }
+    if (mWheelLayout == EWheelLayout::MonoFront) {
+        float compFrontAxle = comp[mFrontIdxA];
+        float compRearAxle = (comp[mRearIdxA] + comp[mRearIdxB]) / 2.0f;
+        float wheelBase = abs(offsets[mFrontIdxA].y - offsets[mRearIdxB].y);
 
-        // Odd front, first is probably the mono thing
-        if (frontIdxs.size() % 2) {
-            const int rearIdxA = rearIdxs.back() - 1;
-            const int rearIdxB = rearIdxs.back();
-            
-            float compFrontAxle = comp[frontIdxs[0]];
-            float compRearAxle = (comp[rearIdxA] + comp[rearIdxB]) / 2.0f;
-            float wheelBase = abs(offsets[1].y - offsets[0].y);
+        return CHeadlightsScript::SSuspensionGeometry{
+            .CompFront = compFrontAxle,
+            .CompRear = compRearAxle,
+            .Wheelbase = wheelBase
+        };
+    }
 
-            return CHeadlightsScript::SSuspensionGeometry{
-                .CompFront = compFrontAxle,
-                .CompRear = compRearAxle,
-                .Wheelbase = wheelBase
-            };
-        }
+    if (mWheelLayout == EWheelLayout::MonoRear) {
+        float compFrontAxle = (comp[mFrontIdxA] + comp[mFrontIdxB]) / 2.0f;
+        float compRearAxle = comp[mRearIdxB];
+        float wheelBase = abs(offsets[mFrontIdxA].y - offsets[mRearIdxB].y);
 
-        // Odd rear, last is probably the mono thing
-        if (rearIdxs.size() % 2) {
-            const int frontIdxA = frontIdxs[0];
-            const int frontIdxB = frontIdxs[1];
-
-            float compFrontAxle = (comp[0] + comp[1]) / 2.0f;
-            float compRearAxle = comp[rearIdxs.back()];
-            float wheelBase = abs(offsets[1].y - offsets[0].y);
-
-            return CHeadlightsScript::SSuspensionGeometry{
-                .CompFront = compFrontAxle,
-                .CompRear = compRearAxle,
-                .Wheelbase = wheelBase
-            };
-        }
+        return CHeadlightsScript::SSuspensionGeometry{
+            .CompFront = compFrontAxle,
+            .CompRear = compRearAxle,
+            .Wheelbase = wheelBase
+        };
     }
 
     // Stik er maar in
     return std::nullopt;
+}
+
+void CHeadlightsScript::UpdateWheelLayout(Vehicle vehicle) {
+    auto numWheels = VExt::GetNumWheels(vehicle);
+
+    if (numWheels < 2) {
+        mWheelLayout = EWheelLayout::Unknown;
+        return;
+    }
+    if (numWheels == 2) {
+        mWheelLayout = EWheelLayout::TwoWheeler;
+        return;
+    }
+    if (numWheels % 2 == 0) {
+        mWheelLayout = EWheelLayout::Normal;
+        return;
+    }
+
+    auto offsets = VExt::GetWheelOffsets(vehicle);
+
+    std::vector<int> frontIdxs;
+    std::vector<int> rearIdxs;
+    for (int i = 0; i < offsets.size(); ++i) {
+        auto offset = offsets[i];
+        if (offset.y > -0.0f) {
+            frontIdxs.push_back(i);
+        }
+        else {
+            rearIdxs.push_back(i);
+        }
+    }
+
+    if (frontIdxs.empty() || rearIdxs.empty()) {
+        mWheelLayout = EWheelLayout::Unknown;
+        return;
+    }
+
+    // Odd front, first is probably the mono thing
+    if (frontIdxs.size() % 2) {
+        mFrontIdxA = frontIdxs[0];
+
+        mRearIdxA = rearIdxs.back() - 1;
+        mRearIdxB = rearIdxs.back();
+        mWheelLayout = EWheelLayout::MonoFront;
+        return;
+    }
+
+    // Odd rear, last is probably the mono thing
+    if (rearIdxs.size() % 2) {
+        mRearIdxB = rearIdxs.back();
+
+        mFrontIdxA = frontIdxs[0];
+        mFrontIdxB = frontIdxs[1];
+        mWheelLayout = EWheelLayout::MonoRear;
+        return;
+    }
+
+    mWheelLayout = EWheelLayout::Unknown;
 }
