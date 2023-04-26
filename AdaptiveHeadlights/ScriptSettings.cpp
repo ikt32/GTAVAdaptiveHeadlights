@@ -22,8 +22,6 @@ CScriptSettings::CScriptSettings(std::string settingsFile)
 
 }
 
-// TODO: NPC toggle
-
 void CScriptSettings::Load() {
     CSimpleIniA ini;
     ini.SetUnicode();

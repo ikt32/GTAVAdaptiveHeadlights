@@ -24,9 +24,8 @@
 
 using VExt = VehicleExtensions;
 
-CHeadlightsScript::CHeadlightsScript(Vehicle vehicle, CScriptSettings& settings, std::vector<CConfig>& configs)
-    : mSettings(settings)
-    , mConfigs(configs)
+CHeadlightsScript::CHeadlightsScript(Vehicle vehicle, std::vector<CConfig>& configs)
+    : mConfigs(configs)
     , mDefaultConfig(configs[0])
     , mVehicle(vehicle) {
 }

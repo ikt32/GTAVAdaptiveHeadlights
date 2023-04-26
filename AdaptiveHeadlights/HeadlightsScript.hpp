@@ -9,10 +9,7 @@
 
 class CHeadlightsScript {
 public:
-    CHeadlightsScript(
-        Vehicle vehicle,
-        CScriptSettings& settings,
-        std::vector<CConfig>& configs);
+    CHeadlightsScript(Vehicle vehicle, std::vector<CConfig>& configs);
     virtual ~CHeadlightsScript();
     virtual void Tick();
 
@@ -51,7 +48,6 @@ protected:
     std::pair<bool, bool> getBeamsActive(Vehicle vehicle) const;
     uint32_t getDamageFlag(const std::string& boneName) const;
 
-    const CScriptSettings& mSettings;
     std::vector<CConfig>& mConfigs;
     CConfig mDefaultConfig;
 

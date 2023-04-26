@@ -106,7 +106,7 @@ std::shared_ptr<CHeadlightsScript> AdaptiveHeadlights::updateScriptPlayer() {
         // We have a vehicle!
         if (vehicleScripts.empty()) {
             // Nothing to check, just create player instance.
-            vehicleScripts.push_back(std::make_shared<CHeadlightsScript>(playerVehicle, *settings, configs));
+            vehicleScripts.push_back(std::make_shared<CHeadlightsScript>(playerVehicle, configs));
             vehicleScripts.back()->UpdateActiveConfig();
             playerScript = vehicleScripts.back();
             listChanged = true;
@@ -119,7 +119,7 @@ std::shared_ptr<CHeadlightsScript> AdaptiveHeadlights::updateScriptPlayer() {
             else {
                 // If it's not our vehicle, replace
                 vehicleScripts.clear();
-                vehicleScripts.push_back(std::make_shared<CHeadlightsScript>(playerVehicle, *settings, configs));
+                vehicleScripts.push_back(std::make_shared<CHeadlightsScript>(playerVehicle, configs));
                 vehicleScripts.back()->UpdateActiveConfig();
                 playerScript = vehicleScripts.back();
                 listChanged = true;
@@ -128,7 +128,7 @@ std::shared_ptr<CHeadlightsScript> AdaptiveHeadlights::updateScriptPlayer() {
         else {
             // Somehow we've got more than 1 vehicle. Nuke and start over.
             vehicleScripts.clear();
-            vehicleScripts.push_back(std::make_shared<CHeadlightsScript>(playerVehicle, *settings, configs));
+            vehicleScripts.push_back(std::make_shared<CHeadlightsScript>(playerVehicle, configs));
             vehicleScripts.back()->UpdateActiveConfig();
             playerScript = vehicleScripts.back();
             listChanged = true;
@@ -176,7 +176,7 @@ std::shared_ptr<CHeadlightsScript> AdaptiveHeadlights::updateScriptsNPC() {
         });
     
         if (it == vehicleScripts.end()) {
-            vehicleScripts.push_back(std::make_shared<CHeadlightsScript>(vehicle, *settings, configs));
+            vehicleScripts.push_back(std::make_shared<CHeadlightsScript>(vehicle, configs));
             vehicleScripts.back()->UpdateActiveConfig();
         }
     }
