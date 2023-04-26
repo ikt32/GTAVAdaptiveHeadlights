@@ -33,6 +33,12 @@ protected:
         uint32_t BoneDmgFlag;
     };
 
+    struct SSuspensionGeometry {
+        float CompFront;
+        float CompRear;
+        float Wheelbase;
+    };
+
     void update();
 
     void registerBoneMatrices(const std::vector<std::string> bones, std::vector<BoneInfo>& boneInfos);
@@ -47,6 +53,8 @@ protected:
 
     std::pair<bool, bool> getBeamsActive(Vehicle vehicle) const;
     uint32_t getDamageFlag(const std::string& boneName) const;
+
+    std::optional<SSuspensionGeometry> GetSuspensionGeometry(Vehicle vehicle) const;
 
     std::vector<CConfig>& mConfigs;
     CConfig mDefaultConfig;
