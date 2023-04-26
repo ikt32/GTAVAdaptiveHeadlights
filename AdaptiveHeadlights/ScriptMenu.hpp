@@ -1,6 +1,7 @@
 #pragma once
 
 #include <menu.h>
+#include <memory>
 #include <string>
 
 template <typename T>

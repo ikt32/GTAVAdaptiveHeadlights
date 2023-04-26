@@ -1,6 +1,7 @@
 #pragma once
 #include "HeadlightsScript.hpp"
 #include "ScriptMenu.hpp"
+#include <memory>
 
 namespace AdaptiveHeadlights {
     void ScriptMain();
