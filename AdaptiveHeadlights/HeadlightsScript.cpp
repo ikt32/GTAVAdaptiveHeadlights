@@ -415,8 +415,8 @@ std::optional<CHeadlightsScript::SSuspensionGeometry> CHeadlightsScript::GetSusp
 
     // Even: Frontmost and rearmost axles
     if (comp.size() % 2 == 0) {
-        const int rearIdxA = comp.size() - 2;
-        const int rearIdxB = comp.size() - 1;
+        const size_t rearIdxA = comp.size() - 2;
+        const size_t rearIdxB = comp.size() - 1;
 
         float compFrontAxle = (comp[0] + comp[1]) / 2.0f;
         float compRearAxle = (comp[rearIdxA] + comp[rearIdxB]) / 2.0f;
