@@ -1,61 +1,13 @@
 #include "Script.hpp"
 #include "Constants.hpp"
 #include "TuningBonesManip.hpp"
-#include "Util/FileVersion.hpp"
 #include "Util/Paths.hpp"
 #include "Util/Logger.hpp"
-#include "Memory/Versions.hpp"
-#include "Memory/VehicleExtensions.hpp"
 
 #include <inc/main.h>
-
 #include <filesystem>
 
 namespace fs = std::filesystem;
-
-void resolveVersion() {
-    int shvVersion = getGameVersion();
-
-    LOG(INFO, "SHV API Game version: {} ({})", eGameVersionToString(shvVersion), shvVersion);
-    SVersion exeVersion = getExeInfo();
-
-    // Version we *explicitly* support
-    std::vector<int> exeVersionsSupp = findNextLowest(ExeVersionMap, exeVersion);
-    if (exeVersionsSupp.empty() || exeVersionsSupp.size() == 1 && exeVersionsSupp[0] == -1) {
-        LOG(ERROR, "Failed to find a corresponding game version.");
-        LOG(WARN, "    Using SHV API version [{}] ({})",
-            eGameVersionToString(shvVersion), shvVersion);
-        VehicleExtensions::SetVersion(shvVersion);
-        return;
-    }
-
-    int highestSupportedVersion = *std::max_element(std::begin(exeVersionsSupp), std::end(exeVersionsSupp));
-    if (shvVersion > highestSupportedVersion) {
-        LOG(WARN, "Game newer than last supported version");
-        LOG(WARN, "    You might experience instabilities or crashes");
-        LOG(WARN, "    Using SHV API version [{}] ({})",
-            eGameVersionToString(shvVersion), shvVersion);
-        VehicleExtensions::SetVersion(shvVersion);
-        return;
-    }
-
-    int lowestSupportedVersion = *std::min_element(std::begin(exeVersionsSupp), std::end(exeVersionsSupp));
-    if (shvVersion < lowestSupportedVersion) {
-        LOG(WARN, "SHV API reported lower version than actual EXE version.");
-        LOG(WARN, "    EXE version     [{}] ({})",
-            eGameVersionToString(lowestSupportedVersion), lowestSupportedVersion);
-        LOG(WARN, "    SHV API version [{}] ({})",
-            eGameVersionToString(shvVersion), shvVersion);
-        LOG(WARN, "    Using EXE version, or highest supported version [{}] ({})",
-            eGameVersionToString(lowestSupportedVersion), lowestSupportedVersion);
-        VehicleExtensions::SetVersion(lowestSupportedVersion);
-        return;
-    }
-
-    LOG(DEBUG, "Using offsets based on SHV API version [{}] ({})",
-        eGameVersionToString(shvVersion), shvVersion);
-    VehicleExtensions::SetVersion(shvVersion);
-}
 
 void initializePaths(HMODULE hInstance) {
     Paths::SetOurModuleHandle(hInstance);
@@ -138,7 +90,7 @@ BOOL APIENTRY DllMain(HMODULE hInstance, DWORD reason, LPVOID lpReserved) {
             g_Logger.SetMinLevel(DEBUG);
             initializePaths(hInstance);
             LOG(INFO, "{} {} (built {} {})", Constants::ScriptName, Constants::DisplayVersion, __DATE__, __TIME__);
-            resolveVersion();
+            LOG(INFO, "Game version: {}", static_cast<int>(getGameVersion()));
             LOG(INFO, "Data path: {}", Paths::GetModPath().string());
 
             scriptRegister(hInstance, AdaptiveHeadlights::ScriptMain);

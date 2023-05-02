@@ -105,7 +105,6 @@
     <ClCompile Include="TuningBonesManip.cpp" />
     <ClCompile Include="Util\AddonSpawnerCache.cpp" />
     <ClCompile Include="Util\Color.cpp" />
-    <ClCompile Include="Util\FileVersion.cpp" />
     <ClCompile Include="Util\Logger.cpp" />
     <ClCompile Include="Util\Paths.cpp" />
     <ClCompile Include="Util\ScriptUtils.cpp" />
@@ -145,7 +144,6 @@
     <ClInclude Include="Memory\VehicleEnums.hpp" />
     <ClInclude Include="Memory\VehicleExtensions.hpp" />
     <ClInclude Include="Memory\VehicleFlags.hpp" />
-    <ClInclude Include="Memory\Versions.hpp" />
     <ClInclude Include="Script.hpp" />
     <ClInclude Include="ScriptMenu.hpp" />
     <ClInclude Include="ScriptMenuUtils.hpp" />
@@ -155,7 +153,6 @@
     <ClInclude Include="TuningBonesManip.hpp" />
     <ClInclude Include="Util\AddonSpawnerCache.hpp" />
     <ClInclude Include="Util\Color.h" />
-    <ClInclude Include="Util\FileVersion.hpp" />
     <ClInclude Include="Util\Game.hpp" />
     <ClInclude Include="Util\Logger.hpp" />
     <ClInclude Include="Util\Math.hpp" />

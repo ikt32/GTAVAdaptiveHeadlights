@@ -63,9 +63,6 @@
     <ClCompile Include="HeadlightsMenu.cpp" />
     <ClCompile Include="ScriptSettings.cpp" />
     <ClCompile Include="ScriptMenuUtils.cpp" />
-    <ClCompile Include="Util\FileVersion.cpp">
-      <Filter>Util</Filter>
-    </ClCompile>
     <ClCompile Include="Util\Logger.cpp">
       <Filter>Util</Filter>
     </ClCompile>
@@ -156,9 +153,6 @@
     <ClInclude Include="Memory\Offsets.hpp">
       <Filter>Memory</Filter>
     </ClInclude>
-    <ClInclude Include="Memory\Versions.hpp">
-      <Filter>Memory</Filter>
-    </ClInclude>
     <ClInclude Include="Constants.hpp" />
     <ClInclude Include="Script.hpp" />
     <ClInclude Include="ScriptMenu.hpp" />
@@ -181,9 +175,6 @@
     </ClInclude>
     <ClInclude Include="HeadlightsScript.hpp" />
     <ClInclude Include="ScriptMenuUtils.hpp" />
-    <ClInclude Include="Util\FileVersion.hpp">
-      <Filter>Util</Filter>
-    </ClInclude>
     <ClInclude Include="Util\Game.hpp">
       <Filter>Util</Filter>
     </ClInclude>
