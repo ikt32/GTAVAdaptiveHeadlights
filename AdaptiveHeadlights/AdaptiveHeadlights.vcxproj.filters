@@ -58,9 +58,6 @@
     <ClCompile Include="Memory\VehicleExtensions.cpp">
       <Filter>Memory</Filter>
     </ClCompile>
-    <ClCompile Include="..\thirdparty\fmt\src\format.cc">
-      <Filter>thirdparty</Filter>
-    </ClCompile>
     <ClCompile Include="DllMain.cpp" />
     <ClCompile Include="Script.cpp" />
     <ClCompile Include="HeadlightsMenu.cpp" />
@@ -78,7 +75,7 @@
     <ClCompile Include="Util\ScriptUtils.cpp">
       <Filter>Util</Filter>
     </ClCompile>
-    <ClCompile Include="Util\String.cpp">
+    <ClCompile Include="Util\Strings.cpp">
       <Filter>Util</Filter>
     </ClCompile>
     <ClCompile Include="Util\Timer.cpp">
@@ -202,7 +199,7 @@
     <ClInclude Include="Util\ScriptUtils.h">
       <Filter>Util</Filter>
     </ClInclude>
-    <ClInclude Include="Util\String.hpp">
+    <ClInclude Include="Util\Strings.hpp">
       <Filter>Util</Filter>
     </ClInclude>
     <ClInclude Include="Util\Timer.h">

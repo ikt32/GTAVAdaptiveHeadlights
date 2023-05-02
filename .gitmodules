@@ -4,9 +4,6 @@
 [submodule "thirdparty/GTAVMenuBase"]
 	path = thirdparty/GTAVMenuBase
 	url = git@github.com:E66666666/GTAVMenuBase.git
-[submodule "thirdparty/fmt"]
-	path = thirdparty/fmt
-	url = git@github.com:fmtlib/fmt.git
 [submodule "thirdparty/minhook"]
 	path = thirdparty/minhook
 	url = https://github.com/TsudaKageyu/minhook/

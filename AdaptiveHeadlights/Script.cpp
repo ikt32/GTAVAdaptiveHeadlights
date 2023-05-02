@@ -8,12 +8,11 @@
 #include "Util/Game.hpp"
 #include "Util/Logger.hpp"
 #include "Util/Paths.hpp"
-#include "Util/String.hpp"
+#include "Util/Strings.hpp"
 #include "Memory/VehicleExtensions.hpp"
 
 #include <inc/natives.h>
 #include <inc/main.h>
-#include <fmt/format.h>
 #include <memory>
 #include <filesystem>
 
@@ -241,13 +240,13 @@ uint32_t AdaptiveHeadlights::LoadConfigs() {
     }
 
     for (const auto& file : fs::directory_iterator(configsPath)) {
-        if (Util::to_lower(fs::path(file).extension().string()) != ".ini") {
+        if (StrUtil::ToLower(fs::path(file).extension().string()) != ".ini") {
             LOG(DEBUG, "Skipping [{}] - not .ini", file.path().stem().string());
             continue;
         }
 
         CConfig config = CConfig::Read(fs::path(file).string());
-        if (Util::strcmpwi(config.Name, "Default")) {
+        if (StrUtil::Strcmpwi(config.Name, "Default")) {
             configs.insert(configs.begin(), config);
             continue;
         }
@@ -257,7 +256,7 @@ uint32_t AdaptiveHeadlights::LoadConfigs() {
     }
 
     if (configs.empty() ||
-        !configs.empty() && !Util::strcmpwi(configs[0].Name, "Default")) {
+        !configs.empty() && !StrUtil::Strcmpwi(configs[0].Name, "Default")) {
         LOG(WARN, "No default config found, generating a default one and saving it...");
         CConfig defaultConfig;
         defaultConfig.Name = "Default";

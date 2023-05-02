@@ -6,7 +6,7 @@
 #include "Util/Paths.hpp"
 #include "Util/Game.hpp"
 #include "Util/UI.hpp"
-#include "Util/String.hpp"
+#include "Util/Strings.hpp"
 #include "Util/Logger.hpp"
 
 #include "Memory/Offsets.hpp"
@@ -16,7 +16,6 @@
 
 #include <inc/enums.h>
 #include <inc/natives.h>
-#include <fmt/format.h>
 
 #include <algorithm>
 #include <filesystem>
@@ -51,7 +50,7 @@ void CHeadlightsScript::UpdateActiveConfig() {
     // First pass - match model and plate
     auto foundConfig = std::find_if(mConfigs.begin(), mConfigs.end(), [&](const CConfig& config) {
         bool modelMatch = config.ModelHash == model;
-        bool plateMatch = Util::strcmpwi(config.Plate, plate);
+        bool plateMatch = StrUtil::Strcmpwi(config.Plate, plate);
         return modelMatch && plateMatch;
         });
 
@@ -374,18 +373,18 @@ std::pair<bool, bool> CHeadlightsScript::getBeamsActive(Vehicle vehicle) const {
 
 uint32_t CHeadlightsScript::getDamageFlag(const std::string& boneName) const {
     using namespace Util;
-    switch (joaat(boneName.c_str())) {
-        case joaat("headlight_l"):
+    switch (StrUtil::Joaat(boneName.c_str())) {
+        case StrUtil::Joaat("headlight_l"):
             return EVehicleLightDamage::LeftHeadlight;
-        case joaat("headlight_r"):
+        case StrUtil::Joaat("headlight_r"):
             return EVehicleLightDamage::RightHeadlight;
-        case joaat("extralight_1"):
+        case StrUtil::Joaat("extralight_1"):
             return EVehicleLightDamage::ExtraLight1;
-        case joaat("extralight_2"):
+        case StrUtil::Joaat("extralight_2"):
             return EVehicleLightDamage::ExtraLight2;
-        case joaat("extralight_3"):
+        case StrUtil::Joaat("extralight_3"):
             return EVehicleLightDamage::ExtraLight3;
-        case joaat("extralight_4"):
+        case StrUtil::Joaat("extralight_4"):
             return EVehicleLightDamage::ExtraLight4;
         default:
             return 0;

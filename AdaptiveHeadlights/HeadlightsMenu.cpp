@@ -6,12 +6,12 @@
 #include "ScriptMenuUtils.hpp"
 
 #include "Util/Math.hpp"
-#include "Util/UI.hpp"
 #include "Util/Paths.hpp"
+#include "Util/Strings.hpp"
+#include "Util/UI.hpp"
 
 #include "Memory/VehicleExtensions.hpp"
 
-#include <fmt/format.h>
 #include <shellapi.h>
 #include <format>
 #include <optional>
@@ -208,10 +208,10 @@ std::vector<CScriptMenu<CHeadlightsScript>::CSubmenu> AdaptiveHeadlights::BuildM
 }
 
 std::vector<std::string> AdaptiveHeadlights::FormatConfig(CHeadlightsScript& context, const CConfig& config) {
-    std::string bones = fmt::format("{} {} {} {} {}",
-        fmt::join(config.Bones.LowLeft, " "), fmt::join(config.Bones.LowRight, " "),
-        fmt::join(config.Bones.HighLeft, " "), fmt::join(config.Bones.HighRight, " "),
-        fmt::join(config.Bones.Mods, " "));
+    std::string bones = std::format("{} {} {} {} {}",
+        StrUtil::Join(config.Bones.LowLeft, " ", "{}"), StrUtil::Join(config.Bones.LowRight, " ", "{}"),
+        StrUtil::Join(config.Bones.HighLeft, " ", "{}"), StrUtil::Join(config.Bones.HighRight, " ", "{}"),
+        StrUtil::Join(config.Bones.Mods, " ", "{}"));
 
     std::vector<std::string> extras{
         std::format("Name: {}", config.Name),

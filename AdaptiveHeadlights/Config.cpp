@@ -5,9 +5,8 @@
 #include "Util/AddonSpawnerCache.hpp"
 #include "Util/Paths.hpp"
 #include "Util/Logger.hpp"
-#include "Util/String.hpp"
+#include "Util/Strings.hpp"
 
-#include <fmt/format.h>
 #include <simpleini/SimpleIni.h>
 #include <filesystem>
 #include <format>
@@ -36,7 +35,7 @@ namespace {
                    std::vector<std::string>& boneList) {
         boneList.clear();
         std::string bonesAll = ini.GetValue(section, key, "");
-        auto boneNames = Util::split(bonesAll, ' ');
+        auto boneNames = StrUtil::Split(bonesAll, ',');
         for (const auto& boneName : boneNames) {
             if (!boneName.empty())
                 boneList.push_back(boneName);
@@ -67,7 +66,7 @@ CConfig CConfig::Read(const std::string& configFile) {
     }
     else if (modelHashStr.empty()) {
         // This config only has a model name.
-        config.ModelHash = Util::joaat(modelName.c_str());
+        config.ModelHash = StrUtil::Joaat(modelName.c_str());
         config.ModelName = modelName;
     }
     else {
@@ -160,11 +159,11 @@ bool CConfig::Write(const std::string& newName, Hash model, std::string plate, E
 
     // [Bones]
     // No stl-format alternative for fmt::join yet?
-    SAVE_VAL("Bones", "LowLeft",    fmt::format("{}", fmt::join(Bones.LowLeft, " ")));
-    SAVE_VAL("Bones", "LowRight",   fmt::format("{}", fmt::join(Bones.LowRight, " ")));
-    SAVE_VAL("Bones", "HighLeft",   fmt::format("{}", fmt::join(Bones.HighLeft, " ")));
-    SAVE_VAL("Bones", "HighRight",  fmt::format("{}", fmt::join(Bones.HighRight, " ")));
-    SAVE_VAL("Bones", "Mods",       fmt::format("{}", fmt::join(Bones.Mods, " ")));
+    SAVE_VAL("Bones", "LowLeft",    std::format("{}", StrUtil::Join(Bones.LowLeft, ",", "{}")));
+    SAVE_VAL("Bones", "LowRight",   std::format("{}", StrUtil::Join(Bones.LowRight, ",", "{}")));
+    SAVE_VAL("Bones", "HighLeft",   std::format("{}", StrUtil::Join(Bones.HighLeft, ",", "{}")));
+    SAVE_VAL("Bones", "HighRight",  std::format("{}", StrUtil::Join(Bones.HighRight, ",", "{}")));
+    SAVE_VAL("Bones", "Mods",       std::format("{}", StrUtil::Join(Bones.Mods, ",", "{}")));
 
     // [Correction]
     SAVE_VAL("Correction", "Enable", Correction.Enable);
