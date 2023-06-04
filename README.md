@@ -1,42 +1,75 @@
 # Adaptive Headlights
 
-Adaptive Headlights is a GTA V script that...
+Adaptive Headlights brings helpful headlight features into the game.
+
+* Self-leveling headlights
+* Steering headlights
+* Startup animation
+* Headlight angle correction
 
 ## Requirements and installation
 
-* Grand Theft Auto V
+* Grand Theft Auto V (>= 2372)
 * [ScriptHookV](http://www.dev-c.com/gtav/scripthookv/)
 
-To install, drag and drop the `AdaptiveHeadlights.asi` file and `AdaptiveHeadlights` folder to the GTA V folder or `%localappdata%/ikt/AdaptiveHeadlights`.
+To install, drag and drop the `AdaptiveHeadlights.asi` file and
+`AdaptiveHeadlights` folder to the GTA V folder.
 
-Stuff...
+`%localappdata%/ikt/AdaptiveHeadlights` may also be used, if the GTA V folder
+is not writeable.
 
-Open the management menu with the `adaphead` cheat (use tilde (`~`) to open the cheat console).
-Other hotkeys may be assigned in `settings_menu.ini`.
+Open the management menu with the `ah` cheat (use tilde (`~`) to open the cheat
+console).
+
+Cheat and hotkeys can be set in `settings_menu.ini`.
 
 ## Configuration files
 
-Configuration files are to be placed in the `Configs` folder. These are the things to pay attention to:
+Configuration files are placed in the `Configs` folder.
 
-File name: Anything goes, as long as it ends on `.ini`.
+The file name: Anything goes, as long as it ends on `.ini`.
 The file name without the extension is used as "Name" in the script.
 
 ```ini
 [ID]
-; Model name of vehicles this configuration applies for.
-ModelName = r32
+ModelHash = 87A21275
+ModelName = rs4avant
 
-; Optional: Hash of model name.
-; Only used if specified, may be omitted entirely.
-ModelHash = 0x8C34D838
+; The headlight bones which the script changes.
+; Multiple bones can be assigned to a headlight:
+; Use comma separation.
+[Bones]
+; Low beam
+LowLeft = headlight_l
+LowRight = headlight_r
+; High beam
+HighLeft = headlight_l
+HighRight = headlight_r
+; For aim corrections for light-casting modified parts
+Mods = extralight_1,extralight_2
 
-; Optional: License plate this configuration applies for.
-; If both model and plate match, the plate variant of the configuration is prioritized.
-; Only used if specified, may be omitted entirely.
-Plate = 46EEK572
 
-[TODO]
-Key = Value
+[Correction]
+Enable = true
+PitchAdjustLowBeam = 2.9
+PitchAdjustHighBeam = 10.5
+PitchAdjustMods = -42.5
+
+
+[Level]
+EnableSuspension = true
+SpeedSuspension = 5.0
+EnableGyroscope = true
+SpeedGyroscope = 3.5
+UpperLimit = 5.0
+LowerLimit = -5.0
+
+
+[Steer]
+Enable = false
+SteeringMultiplier = 0.6
+Limit = 17.5
+
 ```
 
 ## Download
