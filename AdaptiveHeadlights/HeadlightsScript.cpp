@@ -125,7 +125,9 @@ void CHeadlightsScript::update() {
         getCorrectionRotation(mBoneIdxRotationMap);
     }
 
-    if (mActiveConfig->Level.EnableSuspension || mActiveConfig->Level.EnableGyroscope) {
+    bool levelEnable = mActiveConfig->Level.EnableSuspension || mActiveConfig->Level.EnableGyroscope;
+
+    if (levelEnable) {
         auto [lowBeams, highBeams] = getBeamsActive(mVehicle);
 
         if (!mStartupCalibrationDone &&
@@ -142,7 +144,7 @@ void CHeadlightsScript::update() {
         mLastHeadlightOn = false;
     }
 
-    if (mActiveConfig->Steer.Enable && mStartupCalibrationDone) {
+    if (mActiveConfig->Steer.Enable && (mStartupCalibrationDone || !levelEnable)) {
         getSteerRotation(mBoneIdxRotationMap);
     }
 
