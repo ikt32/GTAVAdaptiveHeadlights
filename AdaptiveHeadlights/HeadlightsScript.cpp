@@ -221,10 +221,13 @@ void CHeadlightsScript::getLevelRotation(BoneIdxRotationMap& rotationMap) {
     const float upperLimitRad = deg2rad(mActiveConfig->Level.UpperLimit);
     const float lowerLimitRad = deg2rad(mActiveConfig->Level.LowerLimit);
 
-    auto comp = VExt::GetWheelCompressions(mVehicle);
-
-    std::optional<SSuspensionGeometry> suspensionGeometry = GetSuspensionGeometry(mVehicle);
+    std::optional<SSuspensionGeometry> suspensionGeometry = std::nullopt;
     float pitchSuspCompRad = 0.0f;
+
+    if (mActiveConfig->Level.EnableSuspension) {
+        suspensionGeometry = GetSuspensionGeometry(mVehicle);
+    }
+
     if (mActiveConfig->Level.EnableSuspension && suspensionGeometry) {
         float pitchSuspRad = atan((suspensionGeometry->CompFront - suspensionGeometry->CompRear) / suspensionGeometry->Wheelbase);
         pitchSuspRad = std::clamp(pitchSuspRad, lowerLimitRad, upperLimitRad);
