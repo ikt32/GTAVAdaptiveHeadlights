@@ -114,7 +114,9 @@ std::vector<CScriptMenu<CHeadlightsScript>::CSubmenu> AdaptiveHeadlights::BuildM
                 return;
             }
 
-            mbCtx.BoolOption("Enable pitch correction", config->Correction.Enable);
+            mbCtx.BoolOption("Enable pitch correction", config->Correction.Enable,
+                { "Correct misaligned headlight beams,"
+                  " or fine-tune pitch for better visibility." });
 
             mbCtx.FloatOptionCb("Low beam correction", config->Correction.PitchAdjustLowBeam,
                 -90.0f, 90.0f, 0.1f, MenuUtils::GetKbFloat);
@@ -123,7 +125,8 @@ std::vector<CScriptMenu<CHeadlightsScript>::CSubmenu> AdaptiveHeadlights::BuildM
                 -90.0f, 90.0f, 0.1f, MenuUtils::GetKbFloat);
 
             mbCtx.FloatOptionCb("Mod beam correction", config->Correction.PitchAdjustMods,
-                -90.0f, 90.0f, 0.1f, MenuUtils::GetKbFloat);
+                -90.0f, 90.0f, 0.1f, MenuUtils::GetKbFloat,
+                { "This concerns light beams cast by lights on tuning items." });
         });
 
     submenus.emplace_back("levelmenu",
@@ -139,12 +142,16 @@ std::vector<CScriptMenu<CHeadlightsScript>::CSubmenu> AdaptiveHeadlights::BuildM
             }
 
             mbCtx.BoolOption("Enable (suspension)", config->Level.EnableSuspension,
-                { "Suspension data based self-leveling. This is what actual cars use." });
+                { "Leveling which takes data from the suspension.",
+                  "Most similar to actual vehicles." });
+
             mbCtx.FloatOptionCb("Speed (suspension)", config->Level.SpeedSuspension,
                 0.0f, 10.0f, 0.1f, MenuUtils::GetKbFloat);
 
             mbCtx.BoolOption("Enable (gyroscope)", config->Level.EnableGyroscope,
-                { "Pitch based self-leveling. Can achieve better results, but not 1:1 with actual cars." });
+                { "Leveling which takes data from the vehicle pitch.",
+                  "Can achieve better results, but most cars do not use this." });
+
             mbCtx.FloatOptionCb("Speed (gyroscope)", config->Level.SpeedGyroscope,
                 0.0f, 10.0f, 0.1f, MenuUtils::GetKbFloat);
 
@@ -157,7 +164,7 @@ std::vector<CScriptMenu<CHeadlightsScript>::CSubmenu> AdaptiveHeadlights::BuildM
 
     submenus.emplace_back("steermenu",
         [](NativeMenu::Menu& mbCtx, std::shared_ptr<CHeadlightsScript> context) {
-            mbCtx.Title("Correction");
+            mbCtx.Title("Cornering");
 
             CConfig* config = context ? context->ActiveConfig() : nullptr;
             mbCtx.Subtitle(std::format("Current: {}", config ? config->Name : "None"));
@@ -167,7 +174,8 @@ std::vector<CScriptMenu<CHeadlightsScript>::CSubmenu> AdaptiveHeadlights::BuildM
                 return;
             }
 
-            mbCtx.BoolOption("Enable", config->Steer.Enable);
+            mbCtx.BoolOption("Enable", config->Steer.Enable,
+                { "Shines the headlights into the steering direction." });
 
             mbCtx.FloatOptionCb("Limit", config->Steer.Limit,
                                 0.0f, 60.0f, 0.1f, MenuUtils::GetKbFloat);

@@ -2,14 +2,15 @@
 
 Adaptive Headlights brings helpful headlight features into the game.
 
-* Self-leveling headlights
-* Steering headlights
-* Startup animation
-* Headlight angle correction
+* Self-leveling: headlights stay level with the road
+  * With a start-up animation when turning on for the first time
+* Cornering assist: headlights shine into the steering direction
+* Correct wrongly aimed headlights
+  * With separate low and high beam settings
 
 ## Requirements and installation
 
-* Grand Theft Auto V (>= 2372)
+* Grand Theft Auto V (b2372+)
 * [ScriptHookV](http://www.dev-c.com/gtav/scripthookv/)
 
 To install, drag and drop the `AdaptiveHeadlights.asi` file and
@@ -69,9 +70,21 @@ LowerLimit = -5.0
 Enable = false
 SteeringMultiplier = 0.6
 Limit = 17.5
-
 ```
 
-## Download
+## Notes
 
-N/A
+* The headlight bone moves around, which may result in clipping
+  or movement of the headlight housing for a number of vehicles.
+
+## Recommended
+
+* [InfamousSabre's Headlights++](https://www.gta5-mods.com/misc/headlights-infamoussabre)
+
+## Credits
+
+Special thanks to AlexGuirre for the bone manipulation bits.
+
+<sub>
+© 2023 ikt. All rights reserved.
+</sub>
