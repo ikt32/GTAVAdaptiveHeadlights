@@ -198,7 +198,7 @@ std::vector<Vector3> VehicleExtensions::GetWheelOffsets(Vehicle handle) {
 
     for (uint8_t i = 0; i < positions.size(); ++i) {
         auto wheelAddr = *reinterpret_cast<uint64_t*>(wheelPtr + 0x008 * i);
-        positions.emplace_back(Vector3{
+        positions[i] = (Vector3{
             *reinterpret_cast<float*>(wheelAddr + offPosX),
             *reinterpret_cast<float*>(wheelAddr + offPosY),
             *reinterpret_cast<float*>(wheelAddr + offPosZ),
