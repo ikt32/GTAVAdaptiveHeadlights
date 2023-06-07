@@ -195,8 +195,12 @@ void CHeadlightsScript::updateAngle(const std::vector<SBoneInfo>& boneInfos,
         if ((VExt::GetLightsBroken(mVehicle) & boneDmgFlag) > 0)
             continue;
 
-        rotationMap.at(boneIdx).push_back(rotation);
-        modifiedBoneIdxs.push_back(boneIdx);
+        auto boneRotationIt = rotationMap.find(boneIdx);
+        if (boneRotationIt != rotationMap.end()) {
+            boneRotationIt->second.push_back(rotation);
+            modifiedBoneIdxs.push_back(boneIdx);
+        }
+        // Else: Skip this bone
     }
 }
 
